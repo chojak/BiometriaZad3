@@ -1,75 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace BiometriaZad3
 {
     public class Algorithm
     {
-        //private static byte[] BitmapToByteArray(Bitmap bmp)
-        //{
-        //    Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
-        //    BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
-
-        //    IntPtr ptr = bmpData.Scan0;
-
-        //    int bytes = Math.Abs(bmpData.Stride) * bmp.Height;
-        //    byte[] rgbValues = new byte[bytes];
-
-        //    Marshal.Copy(ptr, rgbValues, 0, bytes);
-        //    bmp.UnlockBits(bmpData);
-
-        //    return rgbValues;
-        //}
-        public static byte[,] ImageTo2DByteArray(Bitmap bmp)
-        {
-            int width = bmp.Width;
-            int height = bmp.Height;
-            BitmapData data = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-
-            byte[] bytes = new byte[height * data.Stride];
-            try
-            {
-                Marshal.Copy(data.Scan0, bytes, 0, bytes.Length);
-            }
-            finally
-            {
-                bmp.UnlockBits(data);
-            }
-
-            byte[,] result = new byte[height, width];
-            for (int y = 0; y < height; ++y)
-                for (int x = 0; x < width; ++x)
-                {
-                    int offset = y * data.Stride + x * 3;
-                    result[y, x] = (byte)((bytes[offset + 0] + bytes[offset + 1] + bytes[offset + 2]) / 3);
-                }
-            return result;
-        }
-
-        private static Bitmap ByteArrayToBitmap(byte[] rgbValues, Bitmap bmp)
-        {
-            Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height, bmp.PixelFormat);  
-            Rectangle rect = new Rectangle(0, 0, newBmp.Width, newBmp.Height);
-            BitmapData bmpData = newBmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
-
-            IntPtr ptr = bmpData.Scan0;
-
-            Marshal.Copy(rgbValues, 0, ptr, rgbValues.Length);
-
-            newBmp.UnlockBits(bmpData);
-
-            return newBmp;
-        }
-        public static BitmapImage BitmapToImageSource(Bitmap bitmap)
+        public static BitmapImage BitmapToImageSource(System.Drawing.Bitmap bitmap)
         {
             using (MemoryStream memory = new MemoryStream())
             {
@@ -83,21 +26,24 @@ namespace BiometriaZad3
                 return bitmapimage;
             }
         }
-        public static Bitmap ImageToWhiteBlack(Bitmap bmp)
+        public static Bitmap ImageToBinaryImage(Bitmap bmp)
         {
-            var byteBmp = ImageTo2DByteArray(bmp);
+            Bitmap newBmp = new Bitmap(bmp);
 
-            byte[] tablicabajtuw = new byte[byteBmp.GetLength(0) * byteBmp.GetLength(1)];
-
-            for (int y = 0; y < byteBmp.GetLength(0); y++)
+            for (int y = 0; y < bmp.Height; y++)
             {
-                for (int x = 0; x < byteBmp.GetLength(1); x++)
+                for (int x = 0; x < bmp.Width; x++)
                 {
-                    tablicabajtuw[y * byteBmp.GetLength(1) + x] = byteBmp[y, x];
+                    Color pixel = bmp.GetPixel(x, y);
+
+                    var meanValue = (pixel.R + pixel.G + pixel.B) / 3;
+
+                    Color newPixel = Color.FromArgb(meanValue, meanValue, meanValue);
+                   
+                    newBmp.SetPixel(x, y, newPixel);
                 }
             }
-
-            return ByteArrayToBitmap(tablicabajtuw, bmp);
+            return newBmp;
         }
         public static Bitmap Bernsen(Bitmap bmp, int range, int limit)
         {

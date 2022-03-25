@@ -40,7 +40,7 @@ namespace BiometriaZad3
                 Source = openFileDialog.FileName;
                 OriginalBitmap = new Bitmap(Source);
                 ImageBitmap = new Bitmap(Source);
-                ImageBitmap = Algorithm.ImageToWhiteBlack(ImageBitmap);
+                ImageBitmap = Algorithm.ImageToBinaryImage(OriginalBitmap);
                 Image.Source = Algorithm.BitmapToImageSource(ImageBitmap);
             }
         }
