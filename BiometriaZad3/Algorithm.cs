@@ -36,7 +36,7 @@ namespace BiometriaZad3
                 {
                     Color pixel = bmp.GetPixel(x, y);
 
-                    var meanValue = (pixel.R + pixel.G + pixel.B) / 3;
+                    var meanValue = (pixel.R + pixel.G + pixel.B) / 3; xd 
 
                     Color newPixel = Color.FromArgb(meanValue, meanValue, meanValue);
                    
