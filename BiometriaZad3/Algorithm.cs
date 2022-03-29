@@ -14,21 +14,6 @@ namespace BiometriaZad3
 {
     public class Algorithm
     {
-        //private static byte[] BitmapToByteArray(Bitmap bmp)
-        //{
-        //    Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
-        //    BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
-
-        //    IntPtr ptr = bmpData.Scan0;
-
-        //    int bytes = Math.Abs(bmpData.Stride) * bmp.Height;
-        //    byte[] rgbValues = new byte[bytes];
-
-        //    Marshal.Copy(ptr, rgbValues, 0, bytes);
-        //    bmp.UnlockBits(bmpData);
-
-        //    return rgbValues;
-        //}
         public static byte[,] ImageTo2DByteArray(Bitmap bmp)
         {
             int width = bmp.Width;
@@ -54,10 +39,9 @@ namespace BiometriaZad3
                 }
             return result;
         }
-
         private static Bitmap ByteArrayToBitmap(byte[] rgbValues, Bitmap bmp)
         {
-            Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height, bmp.PixelFormat);  
+            Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height * 3, bmp.PixelFormat);  
             Rectangle rect = new Rectangle(0, 0, newBmp.Width, newBmp.Height);
             BitmapData bmpData = newBmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
 
@@ -66,6 +50,8 @@ namespace BiometriaZad3
             Marshal.Copy(rgbValues, 0, ptr, rgbValues.Length);
 
             newBmp.UnlockBits(bmpData);
+
+            System.Diagnostics.Debug.WriteLine(newBmp.Width + " " + newBmp.Height);
 
             return newBmp;
         }
@@ -82,18 +68,20 @@ namespace BiometriaZad3
                 bitmapimage.EndInit();
                 return bitmapimage;
             }
-        }
+        } 
         public static Bitmap ImageToWhiteBlack(Bitmap bmp)
         {
             var byteBmp = ImageTo2DByteArray(bmp);
 
-            byte[] tablicabajtuw = new byte[byteBmp.GetLength(0) * byteBmp.GetLength(1)];
+            byte[] tablicabajtuw = new byte[byteBmp.GetLength(0) * byteBmp.GetLength(1) * 3 * 3];
 
-            for (int y = 0; y < byteBmp.GetLength(0); y++)
+            for (int y = 0; y < byteBmp.GetLength(0) * 3; y+=3)
             {
-                for (int x = 0; x < byteBmp.GetLength(1); x++)
+                for (int x = 0; x < byteBmp.GetLength(1) * 3 - 3; x+=3)
                 {
-                    tablicabajtuw[y * byteBmp.GetLength(1) + x] = byteBmp[y, x];
+                    tablicabajtuw[y * byteBmp.GetLength(1) + x] =
+                    tablicabajtuw[y * byteBmp.GetLength(1) + x + 1] = 
+                    tablicabajtuw[y * byteBmp.GetLength(1) + x + 2] = byteBmp[y / 3, x / 3];
                 }
             }
 
