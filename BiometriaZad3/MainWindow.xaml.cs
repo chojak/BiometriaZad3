@@ -68,6 +68,10 @@ namespace BiometriaZad3
             Image.Source = Algorithm.BitmapToImageSource(Algorithm.Niblack(BinaryBitmap, (int)RangeSlider.Value, SauvolaKSlider.Value));
         }
 
+        private void PhansalkarAlgorithm_Click(object sender, RoutedEventArgs e)
+        {
+            Image.Source = Algorithm.BitmapToImageSource(Algorithm.Phanskalar(BinaryBitmap, (int)RangeSlider.Value, PhanskalarP.Value, PhanskalarQ.Value, PhanskalarK.Value, PhanskalarR.Value));
+        }
         private void RangeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             RangeLabel.Content = "Range: " + Math.Round(RangeSlider.Value, 2);
@@ -87,5 +91,26 @@ namespace BiometriaZad3
         {
             RLabel.Content = "Savoula R: " + Math.Round(SauvolaRSlider.Value, 2);   
         }
+
+        private void PhanskalarP_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            PhanskalarPLabel.Content = "P: " + Math.Round(PhanskalarP.Value, 2);
+        }
+
+        private void PhanskalarQ_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            PhanskalarQLabel.Content = "Q: " + Math.Round(PhanskalarQ.Value, 2);
+        }
+         
+        private void PhanskalarK_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            PhanskalarKLabel.Content = "K: " + Math.Round(PhanskalarK.Value, 2);
+        }
+         
+        private void PhanskalarR_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            PhanskalarRLabel.Content = "R: " + Math.Round(PhanskalarR.Value, 2);
+        }
+
     }
 }

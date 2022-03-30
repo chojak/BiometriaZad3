@@ -151,6 +151,9 @@ namespace BiometriaZad3
 
             return newBmp;
         }
+
+        // k - constant value in range 0.2...0.5 (default = 0.2)
+        // R - dynamic range of standard deviation (default = 128)
         public static Bitmap Sauvola(Bitmap bmp, int range, double k, int R)
         {
             if (bmp == null)
@@ -201,6 +204,8 @@ namespace BiometriaZad3
 
             return newBmp;
         }
+
+        // k - constant value (default = 0.2)
         public static Bitmap Niblack(Bitmap bmp, int range, double k)
         {
             if (bmp == null)
@@ -239,6 +244,58 @@ namespace BiometriaZad3
 
 
                     if (currentPixel < mean - k * standardDeviation)
+                    {
+                        newBmp.SetPixel(x, y, Color.FromArgb(0, 0, 0));
+                    }
+                    else
+                    {
+                        newBmp.SetPixel(x, y, Color.FromArgb(255, 255, 255));
+                    }
+                }
+            }
+
+            return newBmp;
+        }
+        
+        // 
+        public static Bitmap Phanskalar(Bitmap bmp, int range, double p, double q, double k, double R)
+        {
+            if (bmp == null)
+            {
+                return new Bitmap(1, 1);
+            }
+
+            Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height);
+            var byteArray = ImageTo2DByteArray(bmp);
+            range /= 2;
+
+            for (int y = 0; y < byteArray.GetLength(1); ++y)
+            {
+                for (int x = 0; x < byteArray.GetLength(0); ++x)
+                {
+                    int min = 255, max = 0;
+                    for (int yy = y - range; yy <= y + range; ++yy)
+                    {
+                        if (yy >= 0 && yy < bmp.Height)
+                            for (int xx = x - range; xx <= x + range; ++xx)
+                            {
+                                if (xx >= 0 && xx < bmp.Width)
+                                {
+                                    if (byteArray[xx, yy] > max)
+                                        max = byteArray[xx, yy];
+                                    if (byteArray[xx, yy] < min)
+                                        min = byteArray[xx, yy];
+                                }
+                            }
+                    }
+
+                    int mean = (max + min) / 2;
+                    int currentPixel = (int)byteArray[x, y];
+
+                    double standardDeviation = Math.Sqrt((Math.Pow((double)(currentPixel - mean), 2) + Math.Pow((double)(min - mean), 2) + Math.Pow((double)(max - mean), 2)) / 2);
+                    double threshold = mean * (1 + p * Math.Exp(-q * mean) + k * ((standardDeviation / R) - 1));
+
+                    if (currentPixel > threshold)
                     {
                         newBmp.SetPixel(x, y, Color.FromArgb(0, 0, 0));
                     }
