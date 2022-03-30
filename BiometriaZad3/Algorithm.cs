@@ -41,7 +41,7 @@ namespace BiometriaZad3
         }
         private static Bitmap ByteArrayToBitmap(byte[] rgbValues, Bitmap bmp)
         {
-            Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height * 3, bmp.PixelFormat);  
+            Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height, bmp.PixelFormat);  
             Rectangle rect = new Rectangle(0, 0, newBmp.Width, newBmp.Height);
             BitmapData bmpData = newBmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
 
@@ -73,56 +73,17 @@ namespace BiometriaZad3
         {
             var byteBmp = ImageTo2DByteArray(bmp);
 
-            byte[] tablicabajtuw = new byte[byteBmp.GetLength(0) * byteBmp.GetLength(1) * 3 * 3];
+            byte[] tablicabajtuw = new byte[byteBmp.GetLength(0) * byteBmp.GetLength(1)];
 
-            for (int y = 0; y < byteBmp.GetLength(0) * 3; y+=3)
+            for (int y = 0; y < byteBmp.GetLength(0); y++)
             {
-                for (int x = 0; x < byteBmp.GetLength(1) * 3 - 3; x+=3)
+                for (int x = 0; x < byteBmp.GetLength(1); x++)
                 {
-                    tablicabajtuw[y * byteBmp.GetLength(1) + x] =
-                    tablicabajtuw[y * byteBmp.GetLength(1) + x + 1] = 
-                    tablicabajtuw[y * byteBmp.GetLength(1) + x + 2] = byteBmp[y / 3, x / 3];
+                    tablicabajtuw[y * byteBmp.GetLength(1) + x] = byteBmp[y, x];
                 }
             }
 
             return ByteArrayToBitmap(tablicabajtuw, bmp);
-        }
-        public static Bitmap Bernsen(Bitmap bmp, int range, int limit)
-        {
-            if (bmp == null)
-            {
-                return null;
-            }
-
-            Bitmap newBitmap = new Bitmap(bmp);
-
-            for (int y = 0; y < bmp.Height; y++)
-            {
-                for (int x = 0; x < bmp.Width; x++)
-                {
-                    int leftTopX = (x - range / 2) >= 0 ? (x - range / 2) : 0;
-                    int leftTopY = (y - range / 2) >= 0 ? (y - range / 2) : 0;
-
-                    leftTopX = (x + range / 2) > bmp.Width ? (leftTopX - (x + range / 2)) : leftTopX;
-                    leftTopY = (y + range / 2) > bmp.Height ? (leftTopY - (y + range / 2)) : leftTopY;
-
-                    int rangeX = (x - range / 2) >= 0 ? range : range + (x - range / 2);
-                    int rangeY = (y - range / 2) >= 0 ? range : range + (y - range / 2);
-
-                    rangeX = (x + range / 2) > bmp.Width ? (rangeX - ((x + range / 2) - bmp.Width)) : rangeX;
-                    rangeY = (y + range / 2) > bmp.Height ? (rangeY - ((y + range / 2) - bmp.Height - 1)) : rangeY;
-
-                    if ((x + range / 2) > (bmp.Width - 9))
-                    {
-                        System.Diagnostics.Debug.WriteLine(y);
-                    }
-
-                    //var rec = new Rectangle(leftTopX, leftTopY, rangeX, rangeY);
-                    //var xd = bmp.Clone(rec, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                }
-               
-            }
-            return newBitmap;
         }
     }
 }

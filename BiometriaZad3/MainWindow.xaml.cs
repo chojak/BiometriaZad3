@@ -46,7 +46,7 @@ namespace BiometriaZad3
         }
         private void BrensenAlgorithm_Click(object sender, RoutedEventArgs e)
         {
-            Image.Source = Algorithm.BitmapToImageSource(Algorithm.Bernsen(ImageBitmap, 9, 100));
+            //Image.Source = Algorithm.BitmapToImageSource(Algorithm.Bernsen(ImageBitmap, 9, 100));
         }
     }
 }
