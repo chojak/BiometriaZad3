@@ -59,7 +59,7 @@
             <Slider Grid.Column="2" Grid.Row="1" x:Name="SauvolaKSlider" Minimum="0.2" Maximum="0.5" Value="0.2" ValueChanged="SauvolaKSlider_ValueChanged"></Slider>
             
             <Label x:Name="RLabel" Grid.Column="3" Grid.Row="0">Savoula R: </Label>
-            <Slider Grid.Column="3" Grid.Row="1" x:Name="SauvolaRSlider" Minimum="0" Maximum="255" Value="128" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="SauvolaRSlider_ValueChanged"></Slider>
+            <Slider Grid.Column="3" Grid.Row="1" x:Name="SauvolaRSlider" Minimum="1" Maximum="255" Value="128" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="SauvolaRSlider_ValueChanged"></Slider>
 
             <Grid Grid.Column="4" Grid.Row="0">
                 <Grid.ColumnDefinitions>
@@ -93,8 +93,8 @@
                 <Label x:Name="PhanskalarKLabel" Grid.Column="1">k: </Label>
                 <Slider x:Name="PhanskalarK" Minimum="0.2" Maximum="0.5" Value="0.25" ValueChanged="PhanskalarK_ValueChanged"></Slider>
 
-                <Label x:Name="PhanskalarRLabel" Grid.Row="1" Grid.Column="1">R: 0.5</Label>
-                <Slider x:Name="PhanskalarR" Grid.Row="1" Minimum="0" Maximum="10" Value="0.5" ValueChanged="PhanskalarR_ValueChanged"></Slider>
+                <Label x:Name="PhanskalarRLabel" Grid.Row="1" Grid.Column="1">R: 5</Label>
+                <Slider x:Name="PhanskalarR" Grid.Row="1" Minimum="0" Maximum="10" Value="5" ValueChanged="PhanskalarR_ValueChanged"></Slider>
             </Grid>
         </Grid>
     </Grid>

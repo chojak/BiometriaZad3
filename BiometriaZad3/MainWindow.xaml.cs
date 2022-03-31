@@ -43,6 +43,7 @@ namespace BiometriaZad3
                 Image.Source = Algorithm.BitmapToImageSource(OriginalBitmap);
             }
         }
+
         private void OriginalImage_Click(object sender, RoutedEventArgs e)
         {
             Image.Source = Algorithm.BitmapToImageSource(OriginalBitmap);
@@ -72,6 +73,7 @@ namespace BiometriaZad3
         {
             Image.Source = Algorithm.BitmapToImageSource(Algorithm.Phanskalar(BinaryBitmap, (int)RangeSlider.Value, PhanskalarP.Value, PhanskalarQ.Value, PhanskalarK.Value, PhanskalarR.Value));
         }
+
         private void RangeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             RangeLabel.Content = "Range: " + Math.Round(RangeSlider.Value, 2);
@@ -111,6 +113,5 @@ namespace BiometriaZad3
         {
             PhanskalarRLabel.Content = "R: " + Math.Round(PhanskalarR.Value, 2);
         }
-
     }
 }

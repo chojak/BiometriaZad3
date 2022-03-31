@@ -67,6 +67,8 @@ namespace BiometriaZad3
             }
             return newBmp;
         }
+
+
         public static Bitmap Bernsen(Bitmap bmp, int range, int limit)
         {
             if (bmp == null)
@@ -256,8 +258,11 @@ namespace BiometriaZad3
 
             return newBmp;
         }
-        
-        // 
+
+        // p = magnitude to which the exponential term affects the threshold – for low values of p(0<=p<=1) it behaves like Sauvola’s method.Too high (p>5) and too many background pixels might be classified as foreground pixels(default=3)
+        // q = treats the algorithm like Sauvola’s alg above certain values (default=10)
+        // k = parameter values in range 0.2..0.5 (default = 0.25)
+        // R = dynamic range of standard deviation (default=0.5)
         public static Bitmap Phanskalar(Bitmap bmp, int range, double p, double q, double k, double R)
         {
             if (bmp == null)
@@ -268,6 +273,7 @@ namespace BiometriaZad3
             Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height);
             var byteArray = ImageTo2DByteArray(bmp);
             range /= 2;
+            R *= 256;
 
             for (int y = 0; y < byteArray.GetLength(1); ++y)
             {
@@ -293,7 +299,8 @@ namespace BiometriaZad3
                     int currentPixel = (int)byteArray[x, y];
 
                     double standardDeviation = Math.Sqrt((Math.Pow((double)(currentPixel - mean), 2) + Math.Pow((double)(min - mean), 2) + Math.Pow((double)(max - mean), 2)) / 2);
-                    double threshold = mean * (1 + p * Math.Exp(-q * mean) + k * ((standardDeviation / R) - 1));
+                   
+                    double threshold = mean * (1 + (p * Math.Exp(-q * mean) + k * ((standardDeviation / R) - 1)));
 
                     if (currentPixel > threshold)
                     {
