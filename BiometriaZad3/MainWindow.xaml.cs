@@ -24,7 +24,7 @@ namespace BiometriaZad3
     {
         string Source;
         Bitmap OriginalBitmap;
-        Bitmap ImageBitmap;
+        Bitmap BinaryBitmap;
 
         public MainWindow()
         {
@@ -39,14 +39,53 @@ namespace BiometriaZad3
             {
                 Source = openFileDialog.FileName;
                 OriginalBitmap = new Bitmap(Source);
-                ImageBitmap = new Bitmap(Source);
-                ImageBitmap = Algorithm.ImageToBinaryImage(OriginalBitmap);
-                Image.Source = Algorithm.BitmapToImageSource(ImageBitmap);
+                BinaryBitmap = Algorithm.ImageToBinaryImage(OriginalBitmap);
+                Image.Source = Algorithm.BitmapToImageSource(OriginalBitmap);
             }
         }
+        private void OriginalImage_Click(object sender, RoutedEventArgs e)
+        {
+            Image.Source = Algorithm.BitmapToImageSource(OriginalBitmap);
+        }
+
+        private void BinaryImage_Click(object sender, RoutedEventArgs e)
+        {
+            Image.Source = Algorithm.BitmapToImageSource(BinaryBitmap);
+        }
+
         private void BrensenAlgorithm_Click(object sender, RoutedEventArgs e)
         {
-            Image.Source = Algorithm.BitmapToImageSource(Algorithm.Bernsen(ImageBitmap, 9, 100));
+            Image.Source = Algorithm.BitmapToImageSource(Algorithm.Bernsen(BinaryBitmap, (int)RangeSlider.Value, (int)LimitSlider.Value));
+        }
+
+        private void SauvolaAlgorithm_Click(object sender, RoutedEventArgs e)
+        {
+            Image.Source = Algorithm.BitmapToImageSource(Algorithm.Sauvola(BinaryBitmap, (int)RangeSlider.Value, SauvolaKSlider.Value, (int)SauvolaRSlider.Value));
+        }
+        
+        private void NiblackAlgorithm_Click(object sender, RoutedEventArgs e)
+        {
+            Image.Source = Algorithm.BitmapToImageSource(Algorithm.Niblack(BinaryBitmap, (int)RangeSlider.Value, SauvolaKSlider.Value));
+        }
+
+        private void RangeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            RangeLabel.Content = "Range: " + Math.Round(RangeSlider.Value, 2);
+        }
+
+        private void LimitSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            BrensenLabel.Content = "Limit: " + Math.Round(LimitSlider.Value, 2);    
+        }
+
+        private void SauvolaKSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            KLabel.Content = "Sauvola and Niblack k: " + Math.Round(SauvolaKSlider.Value, 2);
+        }
+
+        private void SauvolaRSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            RLabel.Content = "Savoula R: " + Math.Round(SauvolaRSlider.Value, 2);   
         }
     }
 }
