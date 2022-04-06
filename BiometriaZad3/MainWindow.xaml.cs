@@ -127,7 +127,9 @@ namespace BiometriaZad3
             }
             else if (LaplacianButton.IsChecked == true)
             {
+                //matrixX = new double[,] { { -1, -1, -1, }, { -1, 8, -1, }, { -1, -1, -1, } };
                 matrixX = new double[,] { { -1, -1, -1, }, { -1, 8, -1, }, { -1, -1, -1, } };
+
                 matrixY = new double[,] { { 0, 0, 0 }, { 0, 0, 0, }, { 0, 0, 0 } };
 
                 int threshold = (int)ThresholdSlider.Value;

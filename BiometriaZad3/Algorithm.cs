@@ -130,6 +130,7 @@ namespace BiometriaZad3
                                 }
                             }
                     }
+
                     reds.Sort();
                     greens.Sort();
                     blues.Sort();
