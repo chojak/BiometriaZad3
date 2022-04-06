@@ -68,16 +68,19 @@ namespace BiometriaZad3
       
         public static byte[,] ImageTo2DByteArray(Bitmap bmp)
         {
+            System.Diagnostics.Debug.WriteLine(bmp.PixelFormat);
+
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-            byte[] array = new byte[data.Stride * data.Height];
+            byte[] array = new byte[data.Width * 3 * data.Height];
             Marshal.Copy(data.Scan0, array, 0, array.Length);
+
             
-            byte[,] result = new byte[data.Stride, data.Height];
+            byte[,] result = new byte[data.Width * 3, data.Height];
 
             for (int y = 0; y < data.Height; y++)
-                for (int x = 0; x < data.Stride - 2; x += 3)
+                for (int x = 0; x < data.Width * 3 - 2; x += 3)
                 {
-                    int index = y * data.Stride + x;
+                    int index = y * data.Width * 3 + x;
 
                     result[x, y]     = array[index];
                     result[x + 1, y] = array[index + 1];
@@ -183,17 +186,18 @@ namespace BiometriaZad3
                 return new Bitmap(1, 1);
             }
 
-            Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height);
             var byteArray = ImageTo2DByteArray(bmp);
+            var newByteArray = new byte[byteArray.GetLength(0), byteArray.GetLength(1)];
+
             range /= 2;
             int averageRed = 0;
             int averageGreen = 0;
             int averageBlue = 0;
             int counter = 0;
 
-            for (int y = 0; y < bmp.Height; y += range)
+            for (int y = 0; y < byteArray.GetLength(1); y += range)
             {
-                for (int x = 0; x < bmp.Width; x += range)
+                for (int x = 0; x < byteArray.GetLength(0); x += range * 3)
                 {
                     averageRed = 0;
                     averageGreen = 0;
@@ -202,14 +206,14 @@ namespace BiometriaZad3
 
                     for (int yy = y - range; yy <= y + range; ++yy)
                     {
-                        if (yy >= 0 && yy < bmp.Height)
-                            for (int xx = (x - range) * 3; xx <= (x + range) * 3; xx += 3)
+                        if (yy >= 0 && yy < byteArray.GetLength(1))
+                            for (int xx = x - range * 3; xx <= x + range * 3; xx += 3)
                             {
-                                if (xx >= 0 && xx < bmp.Width * 3)
+                                if (xx >= 0 && xx < byteArray.GetLength(0))
                                 {
-                                    averageRed += byteArray[xx, y];
-                                    averageGreen += byteArray[xx + 1, y];
-                                    averageBlue += byteArray[xx + 2, y];
+                                    averageRed += byteArray[xx, yy];
+                                    averageGreen += byteArray[xx + 1, yy];
+                                    averageBlue += byteArray[xx + 2, yy];
                                     counter++;
                                 }
                             }
@@ -219,21 +223,22 @@ namespace BiometriaZad3
                     averageGreen /= counter;
                     averageBlue /= counter;
 
-                    for (int yy = y - range; yy <= y + range; ++yy)
+                     for (int yy = y - range; yy <= y + range; ++yy)
                     {
-                        if (yy >= 0 && yy < bmp.Height)
-                            for (int xx = (x - range) * 3; xx <= (x + range) * 3; xx += 3)
+                        if (yy >= 0 && yy < byteArray.GetLength(1))
+                            for (int xx = x - range * 3; xx <= x + range * 3; xx += 3)
                             {
-                                if (xx >= 0 && xx < bmp.Width * 3)
+                                if (xx >= 0 && xx < byteArray.GetLength(0))
                                 {
-                                    newBmp.SetPixel(xx / 3, yy, Color.FromArgb(averageRed, averageGreen, averageBlue));
+                                    newByteArray[xx, yy] = (byte)averageRed;
+                                    newByteArray[xx + 1, yy] = (byte)averageGreen;
+                                    newByteArray[xx + 2, yy] = (byte)averageBlue;
                                 }
                             }
                     }
                 }
             }
-
-            return newBmp;
+            return ByteArrayToBitmap(newByteArray);
         }
       
         public static Bitmap KuwaharaFilter(Bitmap bmp, int range)
@@ -243,13 +248,13 @@ namespace BiometriaZad3
                 return new Bitmap(1, 1);
             }
 
-            Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height);
             var byteArray = ImageTo2DByteArray(bmp);
+            var newByteArray = new byte[byteArray.GetLength(0), byteArray.GetLength(1)];
             range /= 2;
 
-            for (int y = range; y < bmp.Height - range; y++)
+            for (int y = range; y < byteArray.GetLength(1) - range; y++)
             {
-                for (int x = range; x < bmp.Width - range; x++)
+                for (int x = range * 3; x < byteArray.GetLength(0) - range * 3; x+=3)
                 {
                     int[] reds0, reds1, reds2, reds3, greens0, greens1, greens2, greens3, blues0, blues1, blues2, blues3;
                     reds0 = new int[(range + 1) * (range + 1)];
@@ -277,9 +282,9 @@ namespace BiometriaZad3
 
                     for (int yy = y - range; yy <= y + range; ++yy)
                     {
-                        for (int xx = (x - range) * 3; xx <= (x + range) * 3; xx += 3)
+                        for (int xx = x - range * 3; xx <= x + range * 3; xx += 3)
                         {
-                            if (yy <= y && xx / 3 <= x)
+                            if (yy <= y && xx <= x)
                             {
                                 reds0[counter0] = byteArray[xx, y];
                                 greens0[counter0] = byteArray[xx + 1, y];
@@ -287,7 +292,7 @@ namespace BiometriaZad3
                                 counter0++;
                             }
 
-                            if (yy <= y && xx / 3 >= x)
+                            if (yy <= y && xx >= x)
                             {
                                 reds1[counter1] = byteArray[xx, y];
                                 greens1[counter1] = byteArray[xx + 1, y];
@@ -295,7 +300,7 @@ namespace BiometriaZad3
                                 counter1++;
                             }
 
-                            if (yy >= y && xx / 3 <= x)
+                            if (yy >= y && xx <= x)
                             {
                                 reds2[counter2] = byteArray[xx, y];
                                 greens2[counter2] = byteArray[xx + 1, y];
@@ -303,7 +308,7 @@ namespace BiometriaZad3
                                 counter2++;
                             }
 
-                            if (yy >= y && xx / 3 >= x)
+                            if (yy >= y && xx >= x)
                             {
                                 reds3[counter3] = byteArray[xx, y];
                                 greens3[counter3] = byteArray[xx + 1, y];
@@ -394,11 +399,13 @@ namespace BiometriaZad3
                         }
                     }
 
-                    newBmp.SetPixel(x, y, Color.FromArgb((int)meanRed, (int)meanGreen, (int)meanBlue));
+                    newByteArray[x, y] = (byte)meanRed;
+                    newByteArray[x + 1, y] = (byte)meanGreen;
+                    newByteArray[x + 2, y] = (byte)meanBlue;
                 }
             }
 
-            return newBmp;
+            return ByteArrayToBitmap(newByteArray);
         }
         
         public static Bitmap LinearFilter(Bitmap bmp, int range, double[,] xDirectionKernel, double[,] yDirectionKernel, int threshold, double? bias)
