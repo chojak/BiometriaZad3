@@ -33,7 +33,7 @@ namespace BiometriaZad3
         }
         private static double variance(int[] numbers)
         {
-            if(numbers.Length <= 1)
+            if (numbers.Length <= 1)
             {
                 return 0;
             }
@@ -46,16 +46,16 @@ namespace BiometriaZad3
             {
                 sumOfSquares += Math.Pow((num - avg), 2.0);
             }
-            return Math.Sqrt(sumOfSquares / (double)(numbers.Length - 1)); 
+            return Math.Sqrt(sumOfSquares / (double)(numbers.Length - 1));
         }
         private static double average(int[] numbers)
         {
-            if(numbers.Length <= 1)
+            if (numbers.Length <= 1)
             {
                 return numbers[0];
-            } 
+            }
 
-            double sum = 0; 
+            double sum = 0;
             foreach (var x in numbers)
             {
                 sum += x;
@@ -69,7 +69,7 @@ namespace BiometriaZad3
 
             byte[,] result = new byte[width * 3, height];
             for (int y = 0; y < height; y++)
-                for (int x = 0; x < width * 3 - 2; x+=3)
+                for (int x = 0; x < width * 3 - 2; x += 3)
                 {
                     Color pixel = bmp.GetPixel(x / 3, y);
 
@@ -86,10 +86,10 @@ namespace BiometriaZad3
 
             for (int y = 0; y < byteArray.GetLength(1); y++)
             {
-                for (int x = 0; x < byteArray.GetLength(0); x+=3)
+                for (int x = 0; x < byteArray.GetLength(0); x += 3)
                 {
                     int average = (byteArray[x, y] + byteArray[x + 1, y] + byteArray[x + 2, y]) / 3;
-                    Color newPixel = Color.FromArgb(average, average, average); 
+                    Color newPixel = Color.FromArgb(average, average, average);
                     newBmp.SetPixel(x / 3, y, newPixel);
                 }
             }
@@ -115,12 +115,12 @@ namespace BiometriaZad3
                 {
                     reds.Clear();
                     greens.Clear();
-                    blues.Clear();  
+                    blues.Clear();
 
                     for (int yy = y - range; yy <= y + range; ++yy)
                     {
                         if (yy >= 0 && yy < bmp.Height)
-                            for (int xx = (x - range) * 3; xx <= (x + range) * 3; xx+=3)
+                            for (int xx = (x - range) * 3; xx <= (x + range) * 3; xx += 3)
                             {
                                 if (xx >= 0 && xx < bmp.Width * 3)
                                 {
@@ -134,7 +134,7 @@ namespace BiometriaZad3
                     greens.Sort();
                     blues.Sort();
 
-                    newBmp.SetPixel(x, y, Color.FromArgb(reds[reds.Count() / 2], greens[greens.Count() / 2], blues[blues.Count() / 2]));        
+                    newBmp.SetPixel(x, y, Color.FromArgb(reds[reds.Count() / 2], greens[greens.Count() / 2], blues[blues.Count() / 2]));
                 }
             }
 
@@ -151,11 +151,11 @@ namespace BiometriaZad3
             var byteArray = ImageTo2DByteArray(bmp);
             range /= 2;
             int averageRed = 0;
-            int averageGreen= 0;
+            int averageGreen = 0;
             int averageBlue = 0;
             int counter = 0;
 
-            for (int y = 0; y < bmp.Height; y+= range)
+            for (int y = 0; y < bmp.Height; y += range)
             {
                 for (int x = 0; x < bmp.Width; x += range)
                 {
@@ -181,7 +181,7 @@ namespace BiometriaZad3
 
                     averageRed /= counter;
                     averageGreen /= counter;
-                    averageBlue /= counter; 
+                    averageBlue /= counter;
 
                     for (int yy = y - range; yy <= y + range; ++yy)
                     {
@@ -242,7 +242,7 @@ namespace BiometriaZad3
                     {
                         for (int xx = (x - range) * 3; xx <= (x + range) * 3; xx += 3)
                         {
-                            if (yy <= y && xx / 3 <= x) 
+                            if (yy <= y && xx / 3 <= x)
                             {
                                 reds0[counter0] = byteArray[xx, y];
                                 greens0[counter0] = byteArray[xx + 1, y];
@@ -363,5 +363,126 @@ namespace BiometriaZad3
 
             return newBmp;
         }
-    } 
+        public static Bitmap LinearFilter(Bitmap bmp, int range, double[,] xDirectionKernel, double[,] yDirectionKernel, int threshold)
+        {
+            if (bmp == null)
+            {
+                return new Bitmap(1, 1);
+            }
+
+            Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height);
+            var byteArray = ImageTo2DByteArray(bmp);
+            range = 2;
+
+            for (int y = range; y < bmp.Height - range; ++y)
+            {
+                for (int x = range; x < bmp.Width - range; ++x)
+                {
+                    double magX = 0;
+                    double magY = 0;
+
+                    for (int yy = 0; yy < 3; yy++)
+                    {
+                        for (int xx = 0; xx < 3; xx++)
+                        {
+                            int xn = x + xx - 2;
+                            int yn = y + yy - 2;
+
+                            magX += byteArray[xn * 3, yn] * xDirectionKernel[xx, yy];
+                            magY += byteArray[xn * 3, yn] * yDirectionKernel[xx, yy];
+                        }
+                    }
+    
+                    int value = (int)Math.Sqrt(magX * magX + magY * magY);
+                    value = value > threshold ? 255 : 0;
+                    newBmp.SetPixel(x, y, Color.FromArgb(value, value, value));
+                }
+            }
+            return newBmp;
+        }
+        public static Bitmap LinearColorFilter(Bitmap bmp, int range, double[,] xDirectionKernel, double[,] yDirectionKernel, int threshold)
+        {
+            if (bmp == null)
+            {
+                return new Bitmap(1, 1);
+            }
+
+            Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height);
+            var byteArray = ImageTo2DByteArray(bmp);
+            range = 2;
+
+            for (int y = range; y < bmp.Height - range; ++y)
+            {
+                for (int x = range; x < bmp.Width - range; ++x)
+                {
+                    double magXred = 0;
+                    double magXgreen = 0;
+                    double magXblue = 0;
+
+                    double magYred = 0;
+                    double magYgreen = 0;
+                    double magYblue = 0;
+
+                    for (int yy = 0; yy < 3; yy++)
+                    {
+                        for (int xx = 0; xx < 3; xx++)
+                        {
+                            int xn = x + xx - 2;
+                            int yn = y + yy - 2;
+
+                            magXred += byteArray[xn * 3, yn] * xDirectionKernel[xx, yy];
+                            magXgreen += byteArray[xn * 3 + 1, yn] * xDirectionKernel[xx, yy];
+                            magXblue += byteArray[xn * 3 + 2, yn] * xDirectionKernel[xx, yy];
+
+                            magYred += byteArray[xn * 3, yn] * yDirectionKernel[xx, yy];
+                            magYgreen += byteArray[xn * 3 + 1, yn] * yDirectionKernel[xx, yy];
+                            magYblue += byteArray[xn * 3 + 2, yn] * yDirectionKernel[xx, yy];
+                        }
+                    }
+
+                    int valueRed = (int)Math.Sqrt(magXred * magXred + magYred * magYred);
+                    int valueGreen = (int)Math.Sqrt(magXgreen * magXgreen + magYgreen * magYgreen);
+                    int valueBlue = (int)Math.Sqrt(magXblue * magXblue + magYblue * magYblue);
+
+                    valueRed = valueRed > threshold ? 255 : 0;
+                    valueGreen = valueGreen > threshold ? 255 : 0;    
+                    valueBlue = valueBlue > threshold ? 255 : 0;  
+
+                    newBmp.SetPixel(x, y, Color.FromArgb(valueRed, valueGreen, valueBlue));
+                }
+            }
+            return newBmp;
+        }
+        public static Bitmap MinRgb(Bitmap bmp)
+        {
+            if (bmp == null)
+            {
+                return new Bitmap(1, 1);
+            }
+
+            Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height);
+            var byteArray = ImageTo2DByteArray(bmp);
+
+            for (int y = 0; y < bmp.Height; y++)
+            {
+                for (int x = 0; x < bmp.Width; x++)
+                {
+                    int red =   byteArray[x * 3, y];
+                    int green = byteArray[x * 3 + 1, y];
+                    int blue =  byteArray[x * 3 + 2, y];
+
+                    int min = Math.Min(red, Math.Min(green, blue));
+
+                    red = red == min ? red : 0;
+                    green = green == min ? green : 0;
+                    blue = blue == min ? blue : 0;  
+
+                    newBmp.SetPixel(x, y, Color.FromArgb(red, green, blue));
+                }
+            }
+             
+            return newBmp;
+        }
+
+    }
 }

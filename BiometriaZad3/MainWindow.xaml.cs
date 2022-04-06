@@ -72,5 +72,41 @@ namespace BiometriaZad3
         {
             Image.Source = Algorithm.BitmapToImageSource(Algorithm.KuwaharaFilter(OriginalBitmap, (int)RangeSlider.Value));
         }
+
+        private void SobelFilter_Click(object sender, RoutedEventArgs e)
+        {
+            double[,] matrixX = new double[,] { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } };
+            double[,] matrixY = new double[,] { { 1, 2, 1 }, { 0, 0, 0 }, { -1, -2, -1 } };
+            int threshold = (int)ThresholdSlider.Value;
+
+            if (ColorCheck.IsChecked ?? false)
+            {
+                Image.Source = Algorithm.BitmapToImageSource(Algorithm.LinearColorFilter(OriginalBitmap, (int)RangeSlider.Value, matrixX, matrixY, threshold));
+            }
+            else
+            {
+                Image.Source = Algorithm.BitmapToImageSource(Algorithm.LinearFilter(BinaryBitmap, (int)RangeSlider.Value, matrixX, matrixY, threshold));
+            }
+        }
+
+        private void MinRGB_Click(object sender, RoutedEventArgs e)
+        {
+            Image.Source = Algorithm.BitmapToImageSource(Algorithm.MinRgb(OriginalBitmap));
+        }
+
+        private void PredatorFilter_Click(object sender, RoutedEventArgs e)
+        {
+            Bitmap tmp = new Bitmap(OriginalBitmap);
+            tmp = Algorithm.PixelateImage(OriginalBitmap, (int)RangeSlider.Value);
+            tmp = Algorithm.MinRgb(tmp);
+
+            double[,] matrixX = new double[,] { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } };
+            double[,] matrixY = new double[,] { { 1, 2, 1 }, { 0, 0, 0 }, { -1, -2, -1 } };
+            int threshold = (int)ThresholdSlider.Value;
+
+            tmp = Algorithm.LinearColorFilter(tmp, (int)RangeSlider.Value, matrixX, matrixY, threshold);
+
+            Image.Source = Algorithm.BitmapToImageSource(tmp);
+        }
     }
 }
