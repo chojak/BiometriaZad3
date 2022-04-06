@@ -28,7 +28,11 @@
                 <Button x:Name="ChooseFile" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="ChooseFile_Click">Open file</Button>
                 <Button x:Name="OriginalImage" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="OriginalImage_Click">Original</Button>
                 <Button x:Name="BinaryImage" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="BinaryImage_Click">Binary</Button>
-                <Button x:Name="MedianFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="MedianFilter_Click">Median Filter</Button> 
+                <Button x:Name="MedianFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="MedianFilter_Click">Median Filter</Button>
+                <Button x:Name="PixelateFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="PixelateFilter_Click">Pixelate</Button>
+                <Button x:Name="KuwaharaFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="KuwaharaFilter_Click">Kuwahara Filter</Button>
+
+
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1" Margin="5">
@@ -44,7 +48,7 @@
             </Grid.RowDefinitions>
 
             <Label x:Name="RangeLabel" Grid.Column="0" Grid.Row="0">Range: </Label>
-            <Slider Grid.Column="0" Grid.Row="1" x:Name="RangeSlider" Minimum="3" Maximum="13" Value="5" TickFrequency="2" IsSnapToTickEnabled="True" ValueChanged="RangeSlider_ValueChanged"></Slider>
+            <Slider Grid.Column="0" Grid.Row="1" x:Name="RangeSlider" Minimum="3" Maximum="41" Value="5" TickFrequency="2" IsSnapToTickEnabled="True" ValueChanged="RangeSlider_ValueChanged"></Slider>
         </Grid>
     </Grid>
 </Window>

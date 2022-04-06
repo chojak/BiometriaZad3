@@ -62,5 +62,15 @@ namespace BiometriaZad3
         {
             Image.Source = Algorithm.BitmapToImageSource(Algorithm.MedianFilter(OriginalBitmap, (int)RangeSlider.Value));
         }
+
+        private void PixelateFilter_Click(object sender, RoutedEventArgs e)
+        {
+            Image.Source = Algorithm.BitmapToImageSource(Algorithm.PixelateImage(OriginalBitmap, (int)RangeSlider.Value));
+        }
+
+        private void KuwaharaFilter_Click(object sender, RoutedEventArgs e)
+        {
+            Image.Source = Algorithm.BitmapToImageSource(Algorithm.KuwaharaFilter(OriginalBitmap, (int)RangeSlider.Value));
+        }
     }
 }
