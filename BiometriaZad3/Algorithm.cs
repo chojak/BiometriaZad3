@@ -88,28 +88,42 @@ namespace BiometriaZad3
             return result;
         }
 
-        //public static Bitmap ByteArrayToBitmap(byte[,] byteArray)
-        //{
+        public static Bitmap ByteArrayToBitmap(byte[,] byteArray)
+        {
+            Bitmap result = new Bitmap(byteArray.GetLength(0) / 3, byteArray.GetLength(1));
+            BitmapData data = result.LockBits(new Rectangle(0, 0, result.Width, result.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
 
+            byte[] array = new byte[byteArray.GetLength(0) * byteArray.GetLength(1)];
 
-            
-        //}
-      
+            for (int y = 0; y < byteArray.GetLength(1); y++)
+            {
+                for (int x = 0; x < byteArray.GetLength(0); x++)
+                {
+                    int index = y * byteArray.GetLength(0) + x;
+                    array[index] = byteArray[x, y];
+                }
+            }
+
+            Marshal.Copy(array, 0, data.Scan0, array.Length);
+            result.UnlockBits(data);
+
+            return result;
+        }
+
         public static Bitmap ImageToBinaryImage(Bitmap bmp)
         {
             var byteArray = ImageTo2DByteArray(bmp);
-            Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height);
+            var newByteArray = new byte[byteArray.GetLength(0), byteArray.GetLength(1)];
 
             for (int y = 0; y < byteArray.GetLength(1); y++)
             {
                 for (int x = 0; x < byteArray.GetLength(0) - 2; x += 3)
                 {
                     int average = (byteArray[x, y] + byteArray[x + 1, y] + byteArray[x + 2, y]) / 3;
-                    Color newPixel = Color.FromArgb(average, average, average);
-                    newBmp.SetPixel(x / 3, y, newPixel);
+                    newByteArray[x, y] = newByteArray[x + 1, y] = newByteArray[x + 2, y] = (byte)average;
                 }
             }
-            return newBmp;
+            return ByteArrayToBitmap(newByteArray);
         }
      
         public static Bitmap MedianFilter(Bitmap bmp, int range)
