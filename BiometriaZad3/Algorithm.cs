@@ -234,9 +234,9 @@ namespace BiometriaZad3
                     double meanRed = 0;
                     double meanGreen = 0;
                     double meanBlue = 0;
-                    double varianceRed = 1000;
-                    double varianceGreen = 1000;
-                    double varianceBlue = 1000;
+                    double varianceRed = 2000;
+                    double varianceGreen = 2000;
+                    double varianceBlue = 2000;
 
                     for (int yy = y - range; yy <= y + range; ++yy)
                     {
@@ -363,7 +363,7 @@ namespace BiometriaZad3
 
             return newBmp;
         }
-        public static Bitmap LinearFilter(Bitmap bmp, int range, double[,] xDirectionKernel, double[,] yDirectionKernel, int threshold)
+        public static Bitmap LinearFilter(Bitmap bmp, int range, double[,] xDirectionKernel, double[,] yDirectionKernel, int threshold, double? bias)
         {
             if (bmp == null)
             {
@@ -392,15 +392,16 @@ namespace BiometriaZad3
                             magY += byteArray[xn * 3, yn] * yDirectionKernel[xx, yy];
                         }
                     }
-    
-                    int value = (int)Math.Sqrt(magX * magX + magY * magY);
-                    value = value > threshold ? 255 : 0;
+
+                    int value = bias == null ? (int)Math.Sqrt(magX * magX + magY * magY) : (int)(magX * bias);
+                    //value = value > threshold ? 255 : 0;
+                    value = value > 255 ? 255 : value < 0 ? 0 : value;
                     newBmp.SetPixel(x, y, Color.FromArgb(value, value, value));
                 }
             }
             return newBmp;
         }
-        public static Bitmap LinearColorFilter(Bitmap bmp, int range, double[,] xDirectionKernel, double[,] yDirectionKernel, int threshold)
+        public static Bitmap LinearColorFilter(Bitmap bmp, int range, double[,] xDirectionKernel, double[,] yDirectionKernel, int threshold, double? bias)
         {
             if (bmp == null)
             {
@@ -444,9 +445,9 @@ namespace BiometriaZad3
                     int valueGreen = (int)Math.Sqrt(magXgreen * magXgreen + magYgreen * magYgreen);
                     int valueBlue = (int)Math.Sqrt(magXblue * magXblue + magYblue * magYblue);
 
-                    valueRed = valueRed > threshold ? 255 : 0;
-                    valueGreen = valueGreen > threshold ? 255 : 0;    
-                    valueBlue = valueBlue > threshold ? 255 : 0;  
+                    valueRed = valueRed > 255 ? 255 : valueRed < 0 ? 0 : valueRed;
+                    valueGreen = valueGreen > 255 ? 255 : valueGreen < 0 ? 0 : valueGreen;    
+                    valueBlue = valueBlue > 255 ? 255 : valueBlue < 0 ? 0 : valueBlue;  
 
                     newBmp.SetPixel(x, y, Color.FromArgb(valueRed, valueGreen, valueBlue));
                 }

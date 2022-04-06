@@ -32,14 +32,17 @@
                 <Button x:Name="MedianFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="MedianFilter_Click">Median Filter</Button>
                 <Button x:Name="PixelateFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="PixelateFilter_Click">Pixelate</Button>
                 <Button x:Name="KuwaharaFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="KuwaharaFilter_Click">Kuwahara Filter</Button>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button x:Name="SobelFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="SobelFilter_Click">Sobel Filter</Button>
-                    <CheckBox x:Name="ColorCheck" VerticalAlignment="Center">c?</CheckBox>
-                </StackPanel>
                 <Button x:Name="MinRGB" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="MinRGB_Click">Min RGB</Button>
                 <Button x:Name="PredatorFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="PredatorFilter_Click">Predator Filter</Button>
-
-
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="LinearFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="LinearFilter_Click">Linear Filter</Button>
+                    <CheckBox x:Name="ColorCheck" VerticalAlignment="Center">c?</CheckBox>
+                </StackPanel>
+                
+                <RadioButton x:Name="GaussButton" IsChecked="True">Gauss</RadioButton>
+                <RadioButton x:Name="PrewittButton">Prewitt</RadioButton>
+                <RadioButton x:Name="SobelButton">Sobel</RadioButton>
+                <RadioButton x:Name="LaplacianButton">Laplacian</RadioButton>
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1" Margin="5">
