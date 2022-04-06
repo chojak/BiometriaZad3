@@ -43,6 +43,7 @@ namespace BiometriaZad3
                 Image.Source = Algorithm.BitmapToImageSource(OriginalBitmap);
             }
         }
+
         private void OriginalImage_Click(object sender, RoutedEventArgs e)
         {
             Image.Source = Algorithm.BitmapToImageSource(OriginalBitmap);

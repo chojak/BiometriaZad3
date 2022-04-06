@@ -27,10 +27,12 @@ namespace BiometriaZad3
                 return bitmapimage;
             }
         }
+       
         private static int AverageOfThreeNext(byte[,] byteArray, int x, int y)
         {
             return (byteArray[x, y] + byteArray[x + 1, y] + byteArray[x + 2, y]) / 3;
         }
+     
         private static double variance(int[] numbers)
         {
             if (numbers.Length <= 1)
@@ -48,6 +50,7 @@ namespace BiometriaZad3
             }
             return Math.Sqrt(sumOfSquares / (double)(numbers.Length - 1));
         }
+     
         private static double average(int[] numbers)
         {
             if (numbers.Length <= 1)
@@ -62,23 +65,36 @@ namespace BiometriaZad3
             }
             return sum / numbers.Length;
         }
+      
         public static byte[,] ImageTo2DByteArray(Bitmap bmp)
         {
-            int width = bmp.Width;
-            int height = bmp.Height;
+            BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+            byte[] array = new byte[data.Height * data.Stride];
+            Marshal.Copy(data.Scan0, array, 0, array.Length);
+            
+            byte[,] result = new byte[data.Stride, data.Height];
 
-            byte[,] result = new byte[width * 3, height];
-            for (int y = 0; y < height; y++)
-                for (int x = 0; x < width * 3 - 2; x += 3)
+            for (int y = 0; y < data.Height; y++)
+                for (int x = 0; x < data.Stride - 2; x += 3)
                 {
-                    Color pixel = bmp.GetPixel(x / 3, y);
+                    int index = y * data.Stride + x;
 
-                    result[x, y] = (byte)pixel.R;
-                    result[x + 1, y] = (byte)pixel.G;
-                    result[x + 2, y] = (byte)pixel.B;
+                    result[x, y]     = array[index];
+                    result[x + 1, y] = array[index + 1];
+                    result[x + 2, y] = array[index + 2];
                 }
+
+            bmp.UnlockBits(data);
             return result;
         }
+
+        //public static Bitmap ByteArrayToBitmap(byte[,] byteArray)
+        //{
+
+
+            
+        //}
+      
         public static Bitmap ImageToBinaryImage(Bitmap bmp)
         {
             var byteArray = ImageTo2DByteArray(bmp);
@@ -86,7 +102,7 @@ namespace BiometriaZad3
 
             for (int y = 0; y < byteArray.GetLength(1); y++)
             {
-                for (int x = 0; x < byteArray.GetLength(0); x += 3)
+                for (int x = 0; x < byteArray.GetLength(0) - 2; x += 3)
                 {
                     int average = (byteArray[x, y] + byteArray[x + 1, y] + byteArray[x + 2, y]) / 3;
                     Color newPixel = Color.FromArgb(average, average, average);
@@ -95,6 +111,7 @@ namespace BiometriaZad3
             }
             return newBmp;
         }
+     
         public static Bitmap MedianFilter(Bitmap bmp, int range)
         {
             if (bmp == null)
@@ -141,6 +158,7 @@ namespace BiometriaZad3
 
             return newBmp;
         }
+   
         public static Bitmap PixelateImage(Bitmap bmp, int range)
         {
             if (bmp == null)
@@ -200,6 +218,7 @@ namespace BiometriaZad3
 
             return newBmp;
         }
+      
         public static Bitmap KuwaharaFilter(Bitmap bmp, int range)
         {
             if (bmp == null)
@@ -364,6 +383,7 @@ namespace BiometriaZad3
 
             return newBmp;
         }
+        
         public static Bitmap LinearFilter(Bitmap bmp, int range, double[,] xDirectionKernel, double[,] yDirectionKernel, int threshold, double? bias)
         {
             if (bmp == null)
@@ -402,6 +422,7 @@ namespace BiometriaZad3
             }
             return newBmp;
         }
+    
         public static Bitmap LinearColorFilter(Bitmap bmp, int range, double[,] xDirectionKernel, double[,] yDirectionKernel, int threshold, double? bias)
         {
             if (bmp == null)
@@ -455,6 +476,7 @@ namespace BiometriaZad3
             }
             return newBmp;
         }
+   
         public static Bitmap MinRgb(Bitmap bmp)
         {
             if (bmp == null)
