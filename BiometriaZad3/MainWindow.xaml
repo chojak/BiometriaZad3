@@ -23,46 +23,19 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             
-            <Image x:Name="Image"></Image>
+            <Image x:Name="Image" MouseDown="Image_MouseDown"></Image>
             
             <StackPanel Grid.Column="1" Margin="10" VerticalAlignment="Center">
                 <Button x:Name="ChooseFile" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="ChooseFile_Click">Open file</Button>
                 <Button x:Name="OriginalImage" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="OriginalImage_Click">Original</Button>
                 <Button x:Name="BinaryImage" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="BinaryImage_Click">Grey scale</Button>
-                <Button x:Name="MedianFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="MedianFilter_Click">Median Filter</Button>
-                <Button x:Name="PixelateFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="PixelateFilter_Click">Pixelate</Button>
-                <Button x:Name="KuwaharaFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="KuwaharaFilter_Click">Kuwahara Filter</Button>
-                <Button x:Name="MinRGB" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="MinRGB_Click">Min RGB</Button>
-                <Button x:Name="PredatorFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="PredatorFilter_Click">Predator Filter</Button>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button x:Name="LinearFilter" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="LinearFilter_Click">Linear Filter</Button>
-                    <CheckBox x:Name="ColorCheck" VerticalAlignment="Center">c?</CheckBox>
-                </StackPanel>
-                
-                <RadioButton x:Name="GaussButton" IsChecked="True">Gauss</RadioButton>
-                <RadioButton x:Name="PrewittButton">Prewitt</RadioButton>
-                <RadioButton x:Name="SobelButton">Sobel</RadioButton>
-                <RadioButton x:Name="LaplacianButton">Laplacian</RadioButton>
+                <Label>Range: </Label>
+                <TextBox x:Name="RangeTextbox" Text="0"></TextBox>
+                <Label x:Name="ToleranceLabel">Tolerance 20</Label>
+                <Slider x:Name="ToleranceSlider" Maximum="255" Value="20" ValueChanged="ToleranceSlider_ValueChanged"></Slider>
+                <Label>Global?</Label>
+                <CheckBox x:Name="GlobalCheckBox" HorizontalAlignment="Center"></CheckBox>
             </StackPanel>
-        </Grid>
-        <Grid Grid.Row="1" Margin="5">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-
-            <Label x:Name="RangeLabel" Grid.Column="0" Grid.Row="0">Range: </Label>
-            <Slider Grid.Column="0" Grid.Row="1" x:Name="RangeSlider" Minimum="3" Maximum="41" Value="5" TickFrequency="2" IsSnapToTickEnabled="True" ValueChanged="RangeSlider_ValueChanged"></Slider>
-
-            <Label x:Name="ThresholdLabel" Grid.Column="1" Grid.Row="0">Threshold: </Label>
-            <Slider Grid.Column="1" Grid.Row="1" x:Name="ThresholdSlider" Minimum="1" Maximum="350" Value="150" TickFrequency="1" IsSnapToTickEnabled="True"></Slider>
-
         </Grid>
     </Grid>
 </Window>

@@ -41,6 +41,8 @@ namespace BiometriaZad3
                 OriginalBitmap = new Bitmap(Source);
                 BinaryBitmap = Algorithm.ImageToBinaryImage(OriginalBitmap);
                 Image.Source = Algorithm.BitmapToImageSource(OriginalBitmap);
+                Image.Width = BinaryBitmap.Width;
+                Image.Height = BinaryBitmap.Height;
             }
         }
 
@@ -54,117 +56,19 @@ namespace BiometriaZad3
             Image.Source = Algorithm.BitmapToImageSource(BinaryBitmap);
         }
 
-        private void RangeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Image_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            RangeLabel.Content = "Range: " + Math.Round(RangeSlider.Value, 2);
+            System.Diagnostics.Debug.WriteLine(e.GetPosition(Image));
+
+            if (GlobalCheckBox.IsChecked != true)
+                Image.Source = Algorithm.BitmapToImageSource(Algorithm.Fill(OriginalBitmap, e.GetPosition(Image), System.Drawing.Color.FromArgb(0, 0, 0), (int)ToleranceSlider.Value, int.Parse(RangeTextbox.Text)));
+            else
+                Image.Source = Algorithm.BitmapToImageSource(Algorithm.FillAll(OriginalBitmap, e.GetPosition(Image), System.Drawing.Color.FromArgb(0, 0, 0), (int)ToleranceSlider.Value, int.Parse(RangeTextbox.Text)));
         }
 
-        private void MedianFilter_Click(object sender, RoutedEventArgs e)
+        private void ToleranceSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            Image.Source = Algorithm.BitmapToImageSource(Algorithm.MedianFilter(OriginalBitmap, (int)RangeSlider.Value));
-        }
-
-        private void PixelateFilter_Click(object sender, RoutedEventArgs e)
-        {
-            Image.Source = Algorithm.BitmapToImageSource(Algorithm.PixelateImage(OriginalBitmap, (int)RangeSlider.Value));
-        }
-
-        private void KuwaharaFilter_Click(object sender, RoutedEventArgs e)
-        {
-            Image.Source = Algorithm.BitmapToImageSource(Algorithm.KuwaharaFilter(OriginalBitmap, (int)RangeSlider.Value));
-        }
-
-        private void LinearFilter_Click(object sender, RoutedEventArgs e)
-        {
-            double[,] matrixX;
-            double[,] matrixY;
-            if (SobelButton.IsChecked == true)
-            {
-                matrixX = new double[,] { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } };
-                matrixY = new double[,] { { 1, 2, 1 }, { 0, 0, 0 }, { -1, -2, -1 } };
-
-                int threshold = (int)ThresholdSlider.Value;
-
-                if (ColorCheck.IsChecked ?? false)
-                {
-                    Image.Source = Algorithm.BitmapToImageSource(Algorithm.LinearColorFilter(OriginalBitmap, (int)RangeSlider.Value, matrixX, matrixY, threshold, null));
-                }
-                else
-                {
-                    Image.Source = Algorithm.BitmapToImageSource(Algorithm.LinearFilter(BinaryBitmap, (int)RangeSlider.Value, matrixX, matrixY, threshold, null));
-                }
-            }
-            else if (PrewittButton.IsChecked == true)
-            {
-                matrixX = new double[,] { { 1, 0, -1 }, { 1, 0, -1 }, { 1, 0, -1 } };
-                matrixY = new double[,] { { 1, 1, 1 }, { 0, 0, 0 }, { -1, -1, -1 } };
-
-                int threshold = (int)ThresholdSlider.Value;
-
-                if (ColorCheck.IsChecked ?? false)
-                {
-                    Image.Source = Algorithm.BitmapToImageSource(Algorithm.LinearColorFilter(OriginalBitmap, (int)RangeSlider.Value, matrixX, matrixY, threshold, null));
-                }
-                else
-                {
-                    Image.Source = Algorithm.BitmapToImageSource(Algorithm.LinearFilter(BinaryBitmap, (int)RangeSlider.Value, matrixX, matrixY, threshold, null));
-                }
-            }
-            else if (GaussButton.IsChecked == true)
-            {
-                matrixX = new double[,] { { 1, 2, 1, }, { 2, 4, 2, }, { 1, 2, 1, } };
-                matrixY = new double[,] { { 0, 0, 0 }, { 0, 0, 0, }, { 0, 0, 0 } };
-
-                int threshold = (int)ThresholdSlider.Value;
-
-                if (ColorCheck.IsChecked ?? false)
-                {
-                    Image.Source = Algorithm.BitmapToImageSource(Algorithm.LinearColorFilter(OriginalBitmap, (int)RangeSlider.Value, matrixX, matrixY, threshold, 1 / 16.0));
-                }
-                else
-                {
-                    Image.Source = Algorithm.BitmapToImageSource(Algorithm.LinearFilter(BinaryBitmap, (int)RangeSlider.Value, matrixX, matrixY, threshold, 1 / 16.0));
-                }
-            }
-            else if (LaplacianButton.IsChecked == true)
-            {
-                //matrixX = new double[,] { { -1, -1, -1, }, { -1, 8, -1, }, { -1, -1, -1, } };
-                matrixX = new double[,] { { -1, -1, -1, }, { -1, 8, -1, }, { -1, -1, -1, } };
-
-                matrixY = new double[,] { { 0, 0, 0 }, { 0, 0, 0, }, { 0, 0, 0 } };
-
-                int threshold = (int)ThresholdSlider.Value;
-
-                if (ColorCheck.IsChecked ?? false)
-                {
-                    Image.Source = Algorithm.BitmapToImageSource(Algorithm.LinearColorFilter(OriginalBitmap, (int)RangeSlider.Value, matrixX, matrixY, threshold, 1));
-                }
-                else
-                {
-                    Image.Source = Algorithm.BitmapToImageSource(Algorithm.LinearFilter(BinaryBitmap, (int)RangeSlider.Value, matrixX, matrixY, threshold, 1));
-                }
-            }
-
-        }
-
-        private void MinRGB_Click(object sender, RoutedEventArgs e)
-        {
-            Image.Source = Algorithm.BitmapToImageSource(Algorithm.MinRgb(OriginalBitmap));
-        }
-
-        private void PredatorFilter_Click(object sender, RoutedEventArgs e)
-        {
-            Bitmap tmp = new Bitmap(OriginalBitmap);
-            tmp = Algorithm.PixelateImage(OriginalBitmap, (int)RangeSlider.Value);
-            tmp = Algorithm.MinRgb(tmp);
-
-            double[,] matrixX = new double[,] { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } };
-            double[,] matrixY = new double[,] { { 1, 2, 1 }, { 0, 0, 0 }, { -1, -2, -1 } };
-            int threshold = (int)ThresholdSlider.Value;
-
-            tmp = Algorithm.LinearColorFilter(tmp, (int)RangeSlider.Value, matrixX, matrixY, threshold, null);
-
-            Image.Source = Algorithm.BitmapToImageSource(tmp);
+            ToleranceLabel.Content = "Tolerance: " + Math.Floor(ToleranceSlider.Value).ToString();
         }
     }
 }
