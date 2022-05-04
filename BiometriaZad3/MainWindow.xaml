@@ -12,30 +12,26 @@
             <Setter Property="Width" Value="100"/>
         </Style>
     </Window.Resources>
+
+
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            
-            <Image x:Name="Image" MouseDown="Image_MouseDown"></Image>
-            
-            <StackPanel Grid.Column="1" Margin="10" VerticalAlignment="Center">
-                <Button x:Name="ChooseFile" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="ChooseFile_Click">Open file</Button>
-                <Button x:Name="OriginalImage" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="OriginalImage_Click">Original</Button>
-                <Button x:Name="BinaryImage" HorizontalAlignment="Center" Height="20" VerticalAlignment="Top" Click="BinaryImage_Click">Grey scale</Button>
-                <Label>Range: </Label>
-                <TextBox x:Name="RangeTextbox" Text="0"></TextBox>
-                <Label x:Name="ToleranceLabel">Tolerance 20</Label>
-                <Slider x:Name="ToleranceSlider" Maximum="255" Value="20" ValueChanged="ToleranceSlider_ValueChanged"></Slider>
-                <Label>Global?</Label>
-                <CheckBox x:Name="GlobalCheckBox" HorizontalAlignment="Center"></CheckBox>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        
+        <Image x:Name="Image" Grid.Column="0"></Image>
+
+        <StackPanel Grid.Column="1">
+            <Button x:Name="ChooseFile" Click="ChooseFile_Click">Load</Button>
+            <Button x:Name="OriginalImage" Click="OriginalImage_Click">Original</Button>
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="BinaryImage" Width="50" Click="BinaryImage_Click">Binary</Button>
+                <Button x:Name="Otsu" Width="50" Click="Otsu_Click">Otsu</Button>
             </StackPanel>
-        </Grid>
+            <TextBlock x:Name="ThresholdTextBlock">Threshold: 130</TextBlock>
+            <Slider x:Name="ThresholdSlider" Value="130" Minimum="1" Maximum="255" ValueChanged="ThresholdSlider_ValueChanged"></Slider>
+            <Button x:Name="KMM" Click="KMM_Click">KMM</Button>
+        </StackPanel>
     </Grid>
 </Window>

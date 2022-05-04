@@ -13,25 +13,37 @@ namespace BiometriaZad3
 {
     public class Algorithm
     {
-        public static BitmapImage BitmapToImageSource(System.Drawing.Bitmap bitmap)
+        private static int[] Histogram(Bitmap bmp)
         {
-            using (MemoryStream memory = new MemoryStream())
+            int bmpHeight = bmp.Height;
+            int bmpWidth = bmp.Width;
+
+            double[] histogram = new double[256];
+
+            int[] red = new int[256];
+            int[] green = new int[256];
+            int[] blue = new int[256];
+
+            for (int x = 0; x < bmpWidth; x++)
             {
-                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
-                memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
-                bitmapimage.BeginInit();
-                bitmapimage.StreamSource = memory;
-                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapimage.EndInit();
-                return bitmapimage;
+                for (int y = 0; y < bmpHeight; y++)
+                {
+                    Color pixel = bmp.GetPixel(x, y);
+
+                    red[pixel.R]++;
+                    green[pixel.G]++;
+                    blue[pixel.B]++;
+
+                    int mean = (pixel.R + pixel.G + pixel.B) / 3;
+                    histogram[mean]++;
+                }
             }
+
+            return histogram.Select(d => (int)d).ToArray();
         }
-
-        public static byte[,] ImageTo2DByteArray(Bitmap bmp)
+        
+        private static byte[,] ImageTo2DByteArray(Bitmap bmp)
         {
-            System.Diagnostics.Debug.WriteLine(bmp.PixelFormat);
-
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
             byte[] array = new byte[data.Width * 3 * data.Height];
             Marshal.Copy(data.Scan0, array, 0, array.Length);
@@ -53,7 +65,37 @@ namespace BiometriaZad3
             return result;
         }
 
-        public static Bitmap ByteArrayToBitmap(byte[,] byteArray)
+        private static int[,] ImageTo2DIntArray(Bitmap bmp)
+        {
+            BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+            byte[] array = new byte[data.Width * 3 * data.Height];
+            Marshal.Copy(data.Scan0, array, 0, array.Length);
+
+
+            int[,] result = new int[data.Width * 3, data.Height];
+
+            for (int y = 0; y < data.Height; y++)
+                for (int x = 0; x < data.Width * 3 - 2; x += 3)
+                {
+                    int index = y * data.Width * 3 + x;
+                    
+                    if(y < 2 || x < 2 || y > data.Height - 2 || x > data.Width * 3 - 5)
+                    {
+                        result[x, y] =
+                        result[x + 1, y] =
+                        result[x + 2, y] = 0;
+                    }
+
+                    result[x, y] = 
+                    result[x + 1, y] = 
+                    result[x + 2, y] = array[index] == byte.MaxValue ? 0 : 1;
+                }
+
+            bmp.UnlockBits(data);
+            return result;
+        }
+
+        private static Bitmap ByteArrayToBitmap(byte[,] byteArray)
         {
             Bitmap result = new Bitmap(byteArray.GetLength(0) / 3, byteArray.GetLength(1));
             BitmapData data = result.LockBits(new Rectangle(0, 0, result.Width, result.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
@@ -75,173 +117,154 @@ namespace BiometriaZad3
             return result;
         }
 
-        public static Bitmap ImageToBinaryImage(Bitmap bmp)
+        private static Bitmap IntArrayToBitmap(int[,] intArray)
         {
-            var byteArray = ImageTo2DByteArray(bmp);
-            var newByteArray = new byte[byteArray.GetLength(0), byteArray.GetLength(1)];
+            Bitmap result = new Bitmap(intArray.GetLength(0) / 3, intArray.GetLength(1));
+            BitmapData data = result.LockBits(new Rectangle(0, 0, result.Width, result.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
 
-            for (int y = 0; y < byteArray.GetLength(1); y++)
+            byte[] array = new byte[intArray.GetLength(0) * intArray.GetLength(1)];
+
+            for (int y = 0; y < intArray.GetLength(1); y++)
             {
-                for (int x = 0; x < byteArray.GetLength(0) - 2; x += 3)
+                for (int x = 0; x < intArray.GetLength(0); x++)
                 {
-                    int average = (byteArray[x, y] + byteArray[x + 1, y] + byteArray[x + 2, y]) / 3;
-                    newByteArray[x, y] = newByteArray[x + 1, y] = newByteArray[x + 2, y] = (byte)average;
+                    int index = y * intArray.GetLength(0) + x;
+                    array[index] = intArray[x, y] == 2 ? byte.MinValue : byte.MaxValue;
                 }
             }
-            return ByteArrayToBitmap(newByteArray);
+
+            Marshal.Copy(array, 0, data.Scan0, array.Length);
+            result.UnlockBits(data);
+
+            return result;
         }
 
-        public static Bitmap Fill(Bitmap bmp, System.Windows.Point position, Color color, int tolerance, int range)
+        public static BitmapImage BitmapToImageSource(System.Drawing.Bitmap bitmap)
         {
-            if (bmp == null)
+            using (MemoryStream memory = new MemoryStream())
             {
-                return new Bitmap(1, 1);
+                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+                memory.Position = 0;
+                BitmapImage bitmapimage = new BitmapImage();
+                bitmapimage.BeginInit();
+                bitmapimage.StreamSource = memory;
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.EndInit();
+                return bitmapimage;
             }
-
-            position.X = Math.Floor(position.X);
-            position.Y = Math.Floor(position.Y);
-
-            var byteArray = ImageTo2DByteArray(bmp);
-            var newByteArray = ImageTo2DByteArray(bmp);
-            int counter = 0;
-            bool isRangeEnabled = range == 0 ? false : true;
-
-
-            var pixelRed = byteArray[(int)position.X * 3, (int)position.Y];
-            var pixelGreen = byteArray[(int)position.X * 3 + 1, (int)position.Y];
-            var pixelBlue = byteArray[(int)position.X * 3 + 2, (int)position.Y];
-
-            HashSet<System.Windows.Point> pixelsToChange = new HashSet<System.Windows.Point>();
-            Stack<System.Windows.Point> neighbours = new Stack<System.Windows.Point>();
-
-            neighbours.Push(new System.Windows.Point((double)(int)position.X, (double)(int)position.Y));
-
-            while (neighbours.Count > 0)
-            {
-                var pixel = neighbours.Pop();
-                
-                pixelsToChange.Add(pixel);
-
-                if (isRangeEnabled)
-                    if (counter < range)
-                        counter++;
-                    else
-                        break;
-
-                System.Windows.Point? topNeighbour = pixel.Y > 0 ? new System.Windows.Point(pixel.X, pixel.Y -1) : null;
-                System.Windows.Point? bottomNeighbour = byteArray.GetLength(1) - 1 > pixel.Y ? new System.Windows.Point(pixel.X, pixel.Y + 1) : null;
-                System.Windows.Point? leftNeighbour = pixel.X > 0 ? new System.Windows.Point(pixel.X - 1, pixel.Y) : null;
-                System.Windows.Point? rightNeighbour = byteArray.GetLength(0) / 3 - 1> pixel.X ? new System.Windows.Point(pixel.X + 1, pixel.Y) : null;
-
-                if (topNeighbour.HasValue && !pixelsToChange.Contains(topNeighbour.Value))
-                {
-                    int currentRed = byteArray[(int)(topNeighbour.Value.X * 3), (int)topNeighbour.Value.Y];
-                    int currentGreen = byteArray[(int)(topNeighbour.Value.X * 3) + 1, (int)topNeighbour.Value.Y];
-                    int currentBlue = byteArray[(int)(topNeighbour.Value.X * 3) + 2, (int)topNeighbour.Value.Y];
-
-                    if (Math.Abs(currentRed - pixelRed) < tolerance && 
-                        Math.Abs(currentGreen - pixelGreen) < tolerance &&
-                        Math.Abs(currentBlue - pixelBlue) < tolerance)
-                    {
-                        neighbours.Push((System.Windows.Point)topNeighbour);
-                    }
-                }
-
-                if (leftNeighbour.HasValue && !pixelsToChange.Contains(leftNeighbour.Value))
-                {
-                    int currentRed = byteArray[(int)(leftNeighbour.Value.X * 3), (int)leftNeighbour.Value.Y];
-                    int currentGreen = byteArray[(int)(leftNeighbour.Value.X * 3) + 1, (int)leftNeighbour.Value.Y];
-                    int currentBlue = byteArray[(int)(leftNeighbour.Value.X * 3) + 2, (int)leftNeighbour.Value.Y];
-
-                    if (Math.Abs(currentRed - pixelRed) < tolerance &&
-                        Math.Abs(currentGreen - pixelGreen) < tolerance &&
-                        Math.Abs(currentBlue - pixelBlue) < tolerance)
-                    {
-                        neighbours.Push((System.Windows.Point)leftNeighbour);
-                    }
-                }
-
-                if (bottomNeighbour.HasValue && !pixelsToChange.Contains(bottomNeighbour.Value))
-                {
-                    int currentRed = byteArray[(int)(bottomNeighbour.Value.X * 3), (int)bottomNeighbour.Value.Y];
-                    int currentGreen = byteArray[(int)(bottomNeighbour.Value.X * 3) + 1, (int)bottomNeighbour.Value.Y];
-                    int currentBlue = byteArray[(int)(bottomNeighbour.Value.X * 3) + 2, (int)bottomNeighbour.Value.Y];
-
-                    if (Math.Abs(currentRed - pixelRed) < tolerance &&
-                        Math.Abs(currentGreen - pixelGreen) < tolerance &&
-                        Math.Abs(currentBlue - pixelBlue) < tolerance)
-                    {
-                        neighbours.Push((System.Windows.Point)bottomNeighbour);
-                    }
-                }
-
-                if (rightNeighbour.HasValue && !pixelsToChange.Contains(rightNeighbour.Value))
-                {
-                    int currentRed = byteArray[(int)(rightNeighbour.Value.X * 3), (int)rightNeighbour.Value.Y];
-                    int currentGreen = byteArray[(int)(rightNeighbour.Value.X * 3) + 1, (int)rightNeighbour.Value.Y];
-                    int currentBlue = byteArray[(int)(rightNeighbour.Value.X * 3) + 2, (int)rightNeighbour.Value.Y];
-
-                    if (Math.Abs(currentRed - pixelRed) < tolerance &&
-                        Math.Abs(currentGreen - pixelGreen) < tolerance &&
-                        Math.Abs(currentBlue - pixelBlue) < tolerance)
-                    {
-                        neighbours.Push((System.Windows.Point)rightNeighbour);
-                    }
-                }
-            }
-
-            foreach (var pixel in pixelsToChange)
-            {
-                newByteArray[(int)(pixel.X * 3), (int)pixel.Y] = color.R;
-                newByteArray[(int)(pixel.X * 3) + 1, (int)pixel.Y] = color.G;
-                newByteArray[(int)(pixel.X * 3) + 2, (int)pixel.Y] = color.B;
-            }
-            return ByteArrayToBitmap(newByteArray);
         }
         
-        public static Bitmap FillAll(Bitmap bmp, System.Windows.Point position, Color color, int tolerance, int range)
+        public static byte Otsu(Bitmap bmp)
+        {
+            // https://www.programmerall.com/article/1106135802/
+
+            int[] tmp = Histogram(bmp);
+            double[] histogram = tmp.Select(x => (double)x).ToArray();
+
+            int size = bmp.Height * bmp.Width;
+            for (int i = 0; i < 256; i++)
+            {
+                histogram[i] = histogram[i] / size;
+            }
+
+            double avgValue = 0;
+            for (int i = 0; i < 256; i++)
+            {
+                avgValue += i * histogram[i];
+            }
+
+            int threshold = 0;
+            double maxVariance = 0;
+            double w = 0, u = 0;
+            for (int i = 0; i < 256; i++)
+            {
+                w += histogram[i];
+                u += i * histogram[i];
+                double t = avgValue * w - u;
+                double variance = t * t / (w * (1 - w));
+
+                if (variance > maxVariance)
+                {
+                    maxVariance = variance;
+                    threshold = i;
+                }
+            }
+
+            return (byte)threshold;
+        }
+
+        public static Bitmap ImageToBinaryImage(Bitmap OriginalBmp, byte threshold)
+        {
+            Bitmap bmp = new Bitmap(OriginalBmp);
+
+            var data = bmp.LockBits(
+                new Rectangle(0, 0, bmp.Width, bmp.Height),
+                System.Drawing.Imaging.ImageLockMode.ReadWrite,
+                System.Drawing.Imaging.PixelFormat.Format24bppRgb
+            );
+
+            var bmpData = new byte[data.Width * 3 * data.Height];
+
+            Marshal.Copy(data.Scan0, bmpData, 0, bmpData.Length);
+
+            for (int i = 0; i < bmpData.Length; i += 3)
+            {
+                byte r = bmpData[i + 0];
+                byte g = bmpData[i + 1];
+                byte b = bmpData[i + 2];
+
+                byte mean = (byte)((r + g + b) / 3);
+
+                bmpData[i + 0] =
+                bmpData[i + 1] =
+                bmpData[i + 2] = mean > threshold ? byte.MaxValue : byte.MinValue;
+            }
+
+            Marshal.Copy(bmpData, 0, data.Scan0, bmpData.Length);
+
+            bmp.UnlockBits(data);
+            return bmp;
+        }
+
+        public static Bitmap KMM_Thinning(Bitmap bmp)
         {
             if (bmp == null)
             {
                 return new Bitmap(1, 1);
             }
 
-            position.X = Math.Floor(position.X);
-            position.Y = Math.Floor(position.Y);
-
             var byteArray = ImageTo2DByteArray(bmp);
-            var newByteArray = ImageTo2DByteArray(bmp);
-            int counter = 0;
-            bool isRangeEnabled = range == 0 ? false : true;
+            int[,] thinningArray = ImageTo2DIntArray(bmp);
 
-
-            var pixelRed = byteArray[(int)position.X * 3, (int)position.Y];
-            var pixelGreen = byteArray[(int)position.X * 3 + 1, (int)position.Y];
-            var pixelBlue = byteArray[(int)position.X * 3 + 2, (int)position.Y];
-
-            for (int y = 0; y < byteArray.GetLength(1); y++)
+            for (int y = 1; y < thinningArray.GetLength(1) - 1; y++)
             {
-                for (int x = 0; x < byteArray.GetLength(0); x += 3)
+                for (int x = 3; x < thinningArray.GetLength(0) - 4; x += 3)
                 {
-                    var currentRed = byteArray[x, y];
-                    var currentGreen = byteArray[x + 1, y];
-                    var currentBlue = byteArray[x + 2, y];
-
-                    if (Math.Abs(currentRed - pixelRed) < tolerance &&
-                       Math.Abs(currentGreen - pixelGreen) < tolerance &&
-                       Math.Abs(currentBlue - pixelBlue) < tolerance)
+                    if (thinningArray[x, y] == 1)
                     {
-                        newByteArray[x, y] = color.R;
-                        newByteArray[x + 1, y] = color.G;
-                        newByteArray[x + 2, y] = color.B;
-                        counter++;
+                        if (thinningArray[x - 3, y - 1] == 0 ||
+                            thinningArray[x - 3, y + 1] == 0 ||
+                            thinningArray[x + 3, y + 1] == 0 ||
+                            thinningArray[x + 3, y - 1] == 0)
+                         
+                            thinningArray[x, y] = 
+                            thinningArray[x + 1, y] = 
+                            thinningArray[x + 2, y] = 3;
 
-                        if (isRangeEnabled && counter == range)
-                            return ByteArrayToBitmap(newByteArray);
+                        if (thinningArray[x - 3, y] == 0 ||
+                            thinningArray[x + 3, y] == 0 ||
+                            thinningArray[x, y - 1] == 0 ||
+                            thinningArray[x, y + 1] == 0)
+
+                            thinningArray[x, y] =
+                            thinningArray[x + 1, y] =
+                            thinningArray[x + 2, y] = 2;
                     }
                 }
             }
-            return ByteArrayToBitmap(newByteArray);
+
+
+            return IntArrayToBitmap(thinningArray);
         }
     }
 }

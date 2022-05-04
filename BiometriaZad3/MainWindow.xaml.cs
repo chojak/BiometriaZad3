@@ -39,36 +39,38 @@ namespace BiometriaZad3
             {
                 Source = openFileDialog.FileName;
                 OriginalBitmap = new Bitmap(Source);
-                BinaryBitmap = Algorithm.ImageToBinaryImage(OriginalBitmap);
                 Image.Source = Algorithm.BitmapToImageSource(OriginalBitmap);
-                Image.Width = BinaryBitmap.Width;
-                Image.Height = BinaryBitmap.Height;
             }
         }
 
         private void OriginalImage_Click(object sender, RoutedEventArgs e)
         {
-            Image.Source = Algorithm.BitmapToImageSource(OriginalBitmap);
+            BinaryBitmap = new Bitmap(OriginalBitmap);
+            Image.Source = Algorithm.BitmapToImageSource(BinaryBitmap);
         }
 
         private void BinaryImage_Click(object sender, RoutedEventArgs e)
         {
+            BinaryBitmap = Algorithm.ImageToBinaryImage(OriginalBitmap, (byte)Math.Floor(ThresholdSlider.Value));
             Image.Source = Algorithm.BitmapToImageSource(BinaryBitmap);
         }
 
-        private void Image_MouseDown(object sender, MouseButtonEventArgs e)
+        private void ThresholdSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            System.Diagnostics.Debug.WriteLine(e.GetPosition(Image));
-
-            if (GlobalCheckBox.IsChecked != true)
-                Image.Source = Algorithm.BitmapToImageSource(Algorithm.Fill(OriginalBitmap, e.GetPosition(Image), System.Drawing.Color.FromArgb(0, 0, 0), (int)ToleranceSlider.Value, int.Parse(RangeTextbox.Text)));
-            else
-                Image.Source = Algorithm.BitmapToImageSource(Algorithm.FillAll(OriginalBitmap, e.GetPosition(Image), System.Drawing.Color.FromArgb(0, 0, 0), (int)ToleranceSlider.Value, int.Parse(RangeTextbox.Text)));
+            ThresholdTextBlock.Text = "Threshold: " + Math.Floor(ThresholdSlider.Value).ToString();
         }
 
-        private void ToleranceSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Otsu_Click(object sender, RoutedEventArgs e)
         {
-            ToleranceLabel.Content = "Tolerance: " + Math.Floor(ToleranceSlider.Value).ToString();
+            int threshold = Algorithm.Otsu(OriginalBitmap);
+
+            ThresholdSlider.Value = threshold;
+            ThresholdTextBlock.Text = "Threshold: " + Math.Floor(ThresholdSlider.Value).ToString();
+        }
+
+        private void KMM_Click(object sender, RoutedEventArgs e)
+        {
+            Image.Source = Algorithm.BitmapToImageSource(Algorithm.KMM_Thinning(BinaryBitmap));
         }
     }
 }
