@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 
@@ -13,6 +14,26 @@ namespace BiometriaZad3
 {
     public class Algorithm
     {
+        private static int[] KMMDeletionArray = { 3, 5, 7, 12, 13, 14, 15, 20,
+                                                21, 22, 23, 28, 29, 30, 31, 48,
+                                                52, 53, 54, 55, 56, 60, 61, 62,
+                                                63, 65, 67, 69, 71, 77, 79, 80,
+                                                81, 83, 84, 85, 86, 87, 88, 89,
+                                                91, 92, 93, 94, 95, 97, 99, 101,
+                                                103, 109, 111, 112, 113, 115, 116, 117,
+                                                118, 119, 120, 121, 123, 124, 125, 126,
+                                                127, 131, 133, 135, 141, 143, 149, 151,
+                                                157, 159, 181, 183, 189, 191, 192, 193,
+                                                195, 197, 199, 205, 207, 208, 209, 211,
+                                                212, 213, 214, 215, 216, 217, 219, 220,
+                                                221, 222, 223, 224, 225, 227, 229, 231,
+                                                237, 239, 240, 241, 243, 244, 245, 246,
+                                                247, 248, 249, 251, 252, 253, 254, 255 };
+
+        private static int[] TwotoFourNeighboursArray = { 3, 6, 12, 24, 48, 96, 192, 129,
+                                                  7, 14, 28, 56, 112, 224, 193, 131,
+                                                  15, 30, 60, 120, 240, 225, 195, 135};
+
         private static int[] Histogram(Bitmap bmp)
         {
             int bmpHeight = bmp.Height;
@@ -126,10 +147,44 @@ namespace BiometriaZad3
 
             for (int y = 0; y < intArray.GetLength(1); y++)
             {
-                for (int x = 0; x < intArray.GetLength(0); x++)
+                for (int x = 0; x < intArray.GetLength(0) - 2; x += 3)
                 {
                     int index = y * intArray.GetLength(0) + x;
-                    array[index] = intArray[x, y] == 2 ? byte.MinValue : byte.MaxValue;
+
+                    if (intArray[x, y] == 0)
+                    {
+                        array[index] =
+                        array[index + 1] =
+                        array[index + 2] = (byte)(255);
+                    }
+                    if (intArray[x, y] == 1)
+                    {
+                        array[index] = (byte)(255); // B
+                        array[index + 1] = (byte)(0); // G
+                        array[index + 2] = (byte)(0); // R
+                    }
+                    if (intArray[x, y] == 2)
+                    {
+                        array[index] = (byte)(0);
+                        array[index + 1] = (byte)(255);
+                        array[index + 2] = (byte)(0);
+                    }
+                    if (intArray[x, y] == 3)
+                    {
+                        array[index] = (byte)(0);
+                        array[index + 1] = (byte)(0);
+                        array[index + 2] = (byte)(255);
+                    }
+                    if (intArray[x, y] == 4)
+                    {
+                        array[index] = (byte)(0);
+                        array[index + 1] = (byte)(255);
+                        array[index + 2] = (byte)(255);
+                    }
+
+                    //array[index] =
+                    //array[index + 1] =
+                    //array[index + 2] = (byte)(intArray[x, y] != 0 ? 0 : 255);
                 }
             }
 
@@ -226,43 +281,157 @@ namespace BiometriaZad3
             return bmp;
         }
 
-        public static Bitmap KMM_Thinning(Bitmap bmp)
+        public static Bitmap KMM_Thinning(Bitmap bmp, System.Windows.Controls.Image Image)
         {
             if (bmp == null)
             {
                 return new Bitmap(1, 1);
             }
 
-            var byteArray = ImageTo2DByteArray(bmp);
             int[,] thinningArray = ImageTo2DIntArray(bmp);
+            int[,] tmpArray;
+            bool IsAny2 = true;
+            bool IsAny3 = true;
 
-            for (int y = 1; y < thinningArray.GetLength(1) - 1; y++)
+
+            Func<int[,], int, bool> Contains2DArray = (arr, value) =>
             {
-                for (int x = 3; x < thinningArray.GetLength(0) - 4; x += 3)
+                for (int y = 1; y < arr.GetLength(1) - 1; y++)
+                    for (int x = 3; x < arr.GetLength(0) - 4; x += 3)
+                        if (arr[x, y] == value)
+                            return true;
+                return false;
+            };
+
+            // sprawdza czy zostaly usuwane jakiekolwiek 2 lub 3 (czy jest juz wystarczajaco cieko)
+            while (IsAny2 || IsAny3)
+            {
+                IsAny2 = false;
+                IsAny3 = false;
+
+                // sets 2 and 3
+                for (int y = 1; y < thinningArray.GetLength(1) - 1; y++)
                 {
-                    if (thinningArray[x, y] == 1)
+                    for (int x = 3; x < thinningArray.GetLength(0) - 4; x += 3)
                     {
-                        if (thinningArray[x - 3, y - 1] == 0 ||
-                            thinningArray[x - 3, y + 1] == 0 ||
-                            thinningArray[x + 3, y + 1] == 0 ||
-                            thinningArray[x + 3, y - 1] == 0)
-                         
-                            thinningArray[x, y] = 
-                            thinningArray[x + 1, y] = 
-                            thinningArray[x + 2, y] = 3;
+                        if (thinningArray[x, y] == 1)
+                        {
+                            if (thinningArray[x - 3, y - 1] == 0 || thinningArray[x - 3, y + 1] == 0 || thinningArray[x + 3, y + 1] == 0 || thinningArray[x + 3, y - 1] == 0)
 
-                        if (thinningArray[x - 3, y] == 0 ||
-                            thinningArray[x + 3, y] == 0 ||
-                            thinningArray[x, y - 1] == 0 ||
-                            thinningArray[x, y + 1] == 0)
+                                thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 3;
 
-                            thinningArray[x, y] =
-                            thinningArray[x + 1, y] =
-                            thinningArray[x + 2, y] = 2;
+                            if (thinningArray[x - 3, y] == 0 || thinningArray[x + 3, y] == 0 || thinningArray[x, y - 1] == 0 || thinningArray[x, y + 1] == 0)
+
+                                thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 2;
+                        }
                     }
                 }
-            }
 
+                tmpArray = (int[,])thinningArray.Clone();
+
+
+                // sets and removes 4
+                for (int y = 1; y < thinningArray.GetLength(1) - 1; y++)
+                {
+                    for (int x = 3; x < thinningArray.GetLength(0) - 4; x += 3)
+                    {
+                        int neighbourValue = 0;
+                        if (thinningArray[x, y] != 0)
+                        {
+                            neighbourValue = thinningArray[x - 3, y - 1] != 0 ? neighbourValue + 128 : neighbourValue;
+                            neighbourValue = thinningArray[x, y - 1] != 0 ? neighbourValue + 1 : neighbourValue;
+                            neighbourValue = thinningArray[x + 3, y - 1] != 0 ? neighbourValue + 2 : neighbourValue;
+
+                            neighbourValue = thinningArray[x - 3, y] != 0 ? neighbourValue + 64 : neighbourValue;
+                            neighbourValue = thinningArray[x + 3, y] != 0 ? neighbourValue + 4 : neighbourValue;
+
+                            neighbourValue = thinningArray[x - 3, y + 1] != 0 ? neighbourValue + 32 : neighbourValue;
+                            neighbourValue = thinningArray[x, y + 1] != 0 ? neighbourValue + 16 : neighbourValue;
+                            neighbourValue = thinningArray[x + 3, y + 1] != 0 ? neighbourValue + 8 : neighbourValue;
+
+                            if (TwotoFourNeighboursArray.Contains(neighbourValue) && KMMDeletionArray.Contains(neighbourValue))
+                            {
+                                tmpArray[x, y] = tmpArray[x + 1, y] = tmpArray[x + 2, y] = 0;
+                            }
+                        }
+                    }
+                }
+
+                thinningArray = (int[,])tmpArray.Clone();
+
+
+                // removes 2
+                while (Contains2DArray(thinningArray, 2))
+                {
+                    for (int y = 1; y < thinningArray.GetLength(1) - 1; y++)
+                    {
+                        for (int x = 3; x < thinningArray.GetLength(0) - 4; x += 3)
+                        {
+                            int neighbourValue = 0;
+                            if (thinningArray[x, y] == 2)
+                            {
+                                neighbourValue = thinningArray[x - 3, y - 1] != 0 ? neighbourValue + 128 : neighbourValue;
+                                neighbourValue = thinningArray[x, y - 1] != 0 ? neighbourValue + 1 : neighbourValue;
+                                neighbourValue = thinningArray[x + 3, y - 1] != 0 ? neighbourValue + 2 : neighbourValue;
+
+                                neighbourValue = thinningArray[x - 3, y] != 0 ? neighbourValue + 64 : neighbourValue;
+                                neighbourValue = thinningArray[x + 3, y] != 0 ? neighbourValue + 4 : neighbourValue;
+
+                                neighbourValue = thinningArray[x - 3, y + 1] != 0 ? neighbourValue + 32 : neighbourValue;
+                                neighbourValue = thinningArray[x, y + 1] != 0 ? neighbourValue + 16 : neighbourValue;
+                                neighbourValue = thinningArray[x + 3, y + 1] != 0 ? neighbourValue + 8 : neighbourValue;
+
+                                if (KMMDeletionArray.Contains(neighbourValue))
+                                {
+                                    thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 0;
+                                    IsAny2 = true;
+                                }
+                                else
+                                {
+                                    thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // removes 3
+                while (Contains2DArray(thinningArray, 3))
+                {
+                    for (int y = 1; y < thinningArray.GetLength(1) - 1; y++)
+                    {
+                        for (int x = 3; x < thinningArray.GetLength(0) - 4; x += 3)
+                        {
+                            int neighbourValue = 0;
+                            if (thinningArray[x, y] == 3)
+                            {
+                                neighbourValue = thinningArray[x - 3, y - 1] != 0 ? neighbourValue + 128 : neighbourValue;
+                                neighbourValue = thinningArray[x, y - 1] != 0 ? neighbourValue + 1 : neighbourValue;
+                                neighbourValue = thinningArray[x + 3, y - 1] != 0 ? neighbourValue + 2 : neighbourValue;
+
+                                neighbourValue = thinningArray[x - 3, y] != 0 ? neighbourValue + 64 : neighbourValue;
+                                neighbourValue = thinningArray[x + 3, y] != 0 ? neighbourValue + 4 : neighbourValue;
+
+                                neighbourValue = thinningArray[x - 3, y + 1] != 0 ? neighbourValue + 32 : neighbourValue;
+                                neighbourValue = thinningArray[x, y + 1] != 0 ? neighbourValue + 16 : neighbourValue;
+                                neighbourValue = thinningArray[x + 3, y + 1] != 0 ? neighbourValue + 8 : neighbourValue;
+
+                                if (KMMDeletionArray.Contains(neighbourValue))
+                                {
+                                    thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 0;
+                                    IsAny3 = true;
+                                }
+                                else
+                                {
+                                    thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Image.Source = Algorithm.BitmapToImageSource(IntArrayToBitmap(thinningArray));
+            }
 
             return IntArrayToBitmap(thinningArray);
         }

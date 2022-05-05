@@ -66,11 +66,14 @@ namespace BiometriaZad3
 
             ThresholdSlider.Value = threshold;
             ThresholdTextBlock.Text = "Threshold: " + Math.Floor(ThresholdSlider.Value).ToString();
+
+            BinaryBitmap = Algorithm.ImageToBinaryImage(OriginalBitmap, (byte)Math.Floor(ThresholdSlider.Value));
+            Image.Source = Algorithm.BitmapToImageSource(BinaryBitmap);
         }
 
         private void KMM_Click(object sender, RoutedEventArgs e)
         {
-            Image.Source = Algorithm.BitmapToImageSource(Algorithm.KMM_Thinning(BinaryBitmap));
+            Image.Source = Algorithm.BitmapToImageSource(Algorithm.KMM_Thinning(BinaryBitmap, Image));
         }
     }
 }
