@@ -14,6 +14,11 @@ namespace BiometriaZad3
 {
     public class Algorithm
     {
+        // kmm
+        private static int[] TwotoFourNeighboursArray = { 3, 6, 12, 24, 48, 96, 192, 129,
+                                                  7, 14, 28, 56, 112, 224, 193, 131,
+                                                  15, 30, 60, 120, 240, 225, 195, 135};
+        
         private static int[] KMMDeletionArray = { 3, 5, 7, 12, 13, 14, 15, 20,
                                                 21, 22, 23, 28, 29, 30, 31, 48,
                                                 52, 53, 54, 55, 56, 60, 61, 62,
@@ -30,9 +35,38 @@ namespace BiometriaZad3
                                                 237, 239, 240, 241, 243, 244, 245, 246,
                                                 247, 248, 249, 251, 252, 253, 254, 255 };
 
-        private static int[] TwotoFourNeighboursArray = { 3, 6, 12, 24, 48, 96, 192, 129,
-                                                  7, 14, 28, 56, 112, 224, 193, 131,
-                                                  15, 30, 60, 120, 240, 225, 195, 135};
+
+        // k3m
+        private static int[] K3M_Array0 = { 3, 6, 7, 12, 14, 15, 24, 28, 30, 31, 48, 56, 60, 62,
+                                            63, 96, 112, 120, 124, 126, 127, 129, 131, 135,143,
+                                            159, 191, 192, 193, 195, 199, 207, 223, 224, 225,
+                                            227, 231, 239, 240, 241, 243, 247, 248, 249, 251,
+                                            252, 253, 254 };
+
+        private static int[] K3M_Array1 = { 7, 14, 28, 56, 112, 131, 193, 224 };
+        
+        private static int[] K3M_Array2 = { 7, 14, 15, 28, 30, 56, 60, 112, 120, 131, 135,
+                                            193, 195, 224, 225, 240 };
+        
+        private static int[] K3M_Array3 = { 7, 14, 15, 28, 30, 31, 56, 60, 62, 112, 120, 124,
+                                            131, 135, 143, 193, 195, 199, 224, 225, 227, 240,
+                                            241, 248 };
+
+        private static int[] K3M_Array4 = { 7, 14, 15, 28, 30, 31, 56, 60, 62, 63, 112, 120,
+                                            124, 126, 131, 135, 143, 159, 193, 195, 199, 207,
+                                            224, 225, 227, 231, 240, 241, 243, 248, 249, 252 };
+
+        private static int[] K3M_Array5 = { 7, 14, 15, 28, 30, 31, 56, 60, 62, 63, 112, 120,
+                                            124, 126, 131, 135, 143, 159, 191, 193, 195, 199,
+                                            207, 224, 225, 227, 231, 239, 240, 241, 243, 248,
+                                            249, 251, 252, 254 };
+
+        private static int[] K3M_Array1Pix = {  3, 6, 7, 12, 14, 15, 24, 28, 30, 31, 48, 56,
+                                                60, 62, 63, 96, 112, 120, 124, 126, 127, 129, 131,
+                                                135,143, 159, 191, 192, 193, 195, 199, 207, 223,
+                                                224, 225, 227, 231, 239, 240, 241, 243, 247, 248,
+                                                249, 251, 252, 253, 254 };
+
 
         private static int[] Histogram(Bitmap bmp)
         {
@@ -159,7 +193,7 @@ namespace BiometriaZad3
                     }
                     if (intArray[x, y] == 1)
                     {
-                        array[index] = (byte)(255); // B
+                        array[index] = (byte)(0); // B
                         array[index + 1] = (byte)(0); // G
                         array[index + 2] = (byte)(0); // R
                     }
@@ -431,6 +465,101 @@ namespace BiometriaZad3
                 }
 
                 Image.Source = Algorithm.BitmapToImageSource(IntArrayToBitmap(thinningArray));
+            }
+
+            return IntArrayToBitmap(thinningArray);
+        }
+
+        public static Bitmap K3M_Thinning(Bitmap bmp, System.Windows.Controls.Image Image)
+        {
+            if (bmp == null)
+            {
+                return new Bitmap(1, 1);
+            }
+
+            List<int[]> K3M_Arrays = new List<int[]>();
+            K3M_Arrays.Add(K3M_Array0);
+            K3M_Arrays.Add(K3M_Array1);
+            K3M_Arrays.Add(K3M_Array2);
+            K3M_Arrays.Add(K3M_Array3);
+            K3M_Arrays.Add(K3M_Array4);
+            K3M_Arrays.Add(K3M_Array5);
+
+
+            int[,] thinningArray = ImageTo2DIntArray(bmp);
+            int[,] tmpArray;
+
+
+            for (int i = 0; i < 6; i++)
+            {
+                bool anyPixelChanged = false;
+                Image.Source = Algorithm.BitmapToImageSource(IntArrayToBitmap(thinningArray));
+                System.Windows.MessageBox.Show("xD");
+
+                for (int y = 1; y < thinningArray.GetLength(1) - 1; y++)
+                {
+                    for (int x = 3; x < thinningArray.GetLength(0) - 4; x += 3)
+                    {
+                        if (thinningArray[x, y] == 1)
+                        {
+                            // checks if borders with background
+                            if (thinningArray[x - 3, y - 1] == 0 || thinningArray[x - 3, y + 1] == 0 || thinningArray[x + 3, y + 1] == 0 || thinningArray[x + 3, y - 1] == 0 ||
+                                thinningArray[x - 3, y] == 0 || thinningArray[x + 3, y] == 0 || thinningArray[x, y - 1] == 0 || thinningArray[x, y + 1] == 0)
+                            {
+                                int neighbourValue = 0;
+                                neighbourValue = thinningArray[x - 3, y - 1] != 0 ? neighbourValue + 128 : neighbourValue;
+                                neighbourValue = thinningArray[x, y - 1] != 0 ? neighbourValue + 1 : neighbourValue;
+                                neighbourValue = thinningArray[x + 3, y - 1] != 0 ? neighbourValue + 2 : neighbourValue;
+
+                                neighbourValue = thinningArray[x - 3, y] != 0 ? neighbourValue + 64 : neighbourValue;
+                                neighbourValue = thinningArray[x + 3, y] != 0 ? neighbourValue + 4 : neighbourValue;
+
+                                neighbourValue = thinningArray[x - 3, y + 1] != 0 ? neighbourValue + 32 : neighbourValue;
+                                neighbourValue = thinningArray[x, y + 1] != 0 ? neighbourValue + 16 : neighbourValue;
+                                neighbourValue = thinningArray[x + 3, y + 1] != 0 ? neighbourValue + 8 : neighbourValue;
+
+                                if (K3M_Arrays[i].Contains(neighbourValue))
+                                {
+                                    anyPixelChanged = true;
+                                    thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (anyPixelChanged == false)
+                    break;
+            }
+
+            for (int y = 1; y < thinningArray.GetLength(1) - 1; y++)
+            {
+                for (int x = 3; x < thinningArray.GetLength(0) - 4; x += 3)
+                {
+                    if (thinningArray[x, y] == 1)
+                    {
+                        // checks if borders with background
+                        if (thinningArray[x - 3, y - 1] == 0 || thinningArray[x - 3, y + 1] == 0 || thinningArray[x + 3, y + 1] == 0 || thinningArray[x + 3, y - 1] == 0 ||
+                            thinningArray[x - 3, y] == 0 || thinningArray[x + 3, y] == 0 || thinningArray[x, y - 1] == 0 || thinningArray[x, y + 1] == 0)
+                        {
+                            int neighbourValue = 0;
+                            neighbourValue = thinningArray[x - 3, y - 1] != 0 ? neighbourValue + 128 : neighbourValue;
+                            neighbourValue = thinningArray[x, y - 1] != 0 ? neighbourValue + 1 : neighbourValue;
+                            neighbourValue = thinningArray[x + 3, y - 1] != 0 ? neighbourValue + 2 : neighbourValue;
+
+                            neighbourValue = thinningArray[x - 3, y] != 0 ? neighbourValue + 64 : neighbourValue;
+                            neighbourValue = thinningArray[x + 3, y] != 0 ? neighbourValue + 4 : neighbourValue;
+
+                            neighbourValue = thinningArray[x - 3, y + 1] != 0 ? neighbourValue + 32 : neighbourValue;
+                            neighbourValue = thinningArray[x, y + 1] != 0 ? neighbourValue + 16 : neighbourValue;
+                            neighbourValue = thinningArray[x + 3, y + 1] != 0 ? neighbourValue + 8 : neighbourValue;
+
+                            if (K3M_Array1Pix.Contains(neighbourValue))
+                            {
+                                thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 0;
+                            }
+                        }
+                    }
+                }
             }
 
             return IntArrayToBitmap(thinningArray);

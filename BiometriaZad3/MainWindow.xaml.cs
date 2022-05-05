@@ -75,5 +75,10 @@ namespace BiometriaZad3
         {
             Image.Source = Algorithm.BitmapToImageSource(Algorithm.KMM_Thinning(BinaryBitmap, Image));
         }
+
+        private void K3M_Click(object sender, RoutedEventArgs e)
+        {
+            Image.Source = Algorithm.BitmapToImageSource(Algorithm.K3M_Thinning(BinaryBitmap, Image));
+        }
     }
 }

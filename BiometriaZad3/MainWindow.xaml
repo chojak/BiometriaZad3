@@ -32,6 +32,7 @@
             <TextBlock x:Name="ThresholdTextBlock">Threshold: 130</TextBlock>
             <Slider x:Name="ThresholdSlider" Value="130" Minimum="1" Maximum="255" ValueChanged="ThresholdSlider_ValueChanged"></Slider>
             <Button x:Name="KMM" Click="KMM_Click">KMM</Button>
+            <Button x:Name="K3M" Click="K3M_Click">K3M</Button>
         </StackPanel>
     </Grid>
 </Window>
