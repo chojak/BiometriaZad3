@@ -16,8 +16,8 @@ namespace BiometriaZad3
     {
         // kmm
         private static int[] TwotoFourNeighboursArray = { 3, 6, 12, 24, 48, 96, 192, 129,
-                                                  7, 14, 28, 56, 112, 224, 193, 131,
-                                                  15, 30, 60, 120, 240, 225, 195, 135};
+                                                          7, 14, 28, 56, 112, 224, 193, 131,
+                                                          15, 30, 60, 120, 240, 225, 195, 135 };
         
         private static int[] KMMDeletionArray = { 3, 5, 7, 12, 13, 14, 15, 20,
                                                 21, 22, 23, 28, 29, 30, 31, 48,
@@ -463,8 +463,6 @@ namespace BiometriaZad3
                         }
                     }
                 }
-
-                Image.Source = Algorithm.BitmapToImageSource(IntArrayToBitmap(thinningArray));
             }
 
             return IntArrayToBitmap(thinningArray);
@@ -492,34 +490,35 @@ namespace BiometriaZad3
             while (anyPixelChanged)
             {
                 anyPixelChanged = false;
-                for (int i = 1; i < 6; i++)
+                // setting border
+                for (int x = 3; x < thinningArray.GetLength(0) - 4; x += 3)
                 {
-                    for (int x = 3; x < thinningArray.GetLength(0) - 4; x += 3)
+                    for (int y = 1; y < thinningArray.GetLength(1) - 1; y++)
                     {
-                        for (int y = 1; y < thinningArray.GetLength(1) - 1; y++)
+                        if (thinningArray[x, y] == 1)
                         {
-                            if (thinningArray[x, y] == 1)
+                            int neighbourValue = 0;
+                            neighbourValue = thinningArray[x - 3, y - 1] != 0 ? neighbourValue + 128 : neighbourValue;
+                            neighbourValue = thinningArray[x, y - 1] != 0 ? neighbourValue + 1 : neighbourValue;
+                            neighbourValue = thinningArray[x + 3, y - 1] != 0 ? neighbourValue + 2 : neighbourValue;
+
+                            neighbourValue = thinningArray[x - 3, y] != 0 ? neighbourValue + 64 : neighbourValue;
+                            neighbourValue = thinningArray[x + 3, y] != 0 ? neighbourValue + 4 : neighbourValue;
+
+                            neighbourValue = thinningArray[x - 3, y + 1] != 0 ? neighbourValue + 32 : neighbourValue;
+                            neighbourValue = thinningArray[x, y + 1] != 0 ? neighbourValue + 16 : neighbourValue;
+                            neighbourValue = thinningArray[x + 3, y + 1] != 0 ? neighbourValue + 8 : neighbourValue;
+
+                            if (K3M_Array0.Contains(neighbourValue))
                             {
-                                int neighbourValue = 0;
-                                neighbourValue = thinningArray[x - 3, y - 1] != 0 ? neighbourValue + 128 : neighbourValue;
-                                neighbourValue = thinningArray[x, y - 1] != 0 ? neighbourValue + 1 : neighbourValue;
-                                neighbourValue = thinningArray[x + 3, y - 1] != 0 ? neighbourValue + 2 : neighbourValue;
-
-                                neighbourValue = thinningArray[x - 3, y] != 0 ? neighbourValue + 64 : neighbourValue;
-                                neighbourValue = thinningArray[x + 3, y] != 0 ? neighbourValue + 4 : neighbourValue;
-
-                                neighbourValue = thinningArray[x - 3, y + 1] != 0 ? neighbourValue + 32 : neighbourValue;
-                                neighbourValue = thinningArray[x, y + 1] != 0 ? neighbourValue + 16 : neighbourValue;
-                                neighbourValue = thinningArray[x + 3, y + 1] != 0 ? neighbourValue + 8 : neighbourValue;
-
-                                if (K3M_Arrays[0].Contains(neighbourValue))
-                                {
-                                    thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 2;
-                                }
+                                thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 2;
                             }
                         }
                     }
+                }
 
+                for (int i = 1; i < 6; i++)
+                {
                     for (int x = 3; x < thinningArray.GetLength(0) - 4; x += 3)
                     {
                         for (int y = 1; y < thinningArray.GetLength(1) - 1; y++)
@@ -539,15 +538,10 @@ namespace BiometriaZad3
                                 neighbourValue = thinningArray[x,     y + 1] != 0 ? neighbourValue + 16 : neighbourValue;
                                 neighbourValue = thinningArray[x + 3, y + 1] != 0 ? neighbourValue + 8 : neighbourValue;
 
-
                                 if (K3M_Arrays[i].Contains(neighbourValue))
                                 {
                                     anyPixelChanged = true;
                                     thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 0;
-                                }
-                                else
-                                {
-                                    thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 1;
                                 }
                             }
                         }
@@ -556,32 +550,6 @@ namespace BiometriaZad3
                 
                 if (anyPixelChanged == true)
                     continue;
-
-                for (int x = 3; x < thinningArray.GetLength(0) - 4; x += 3)
-                {
-                    for (int y = 1; y < thinningArray.GetLength(1) - 1; y++)
-                    {
-                        if (thinningArray[x, y] == 1)
-                        {
-                            int neighbourValue = 0;
-                            neighbourValue = thinningArray[x - 3, y - 1] != 0 ? neighbourValue + 128 : neighbourValue;
-                            neighbourValue = thinningArray[x, y - 1] != 0 ? neighbourValue + 1 : neighbourValue;
-                            neighbourValue = thinningArray[x + 3, y - 1] != 0 ? neighbourValue + 2 : neighbourValue;
-
-                            neighbourValue = thinningArray[x - 3, y] != 0 ? neighbourValue + 64 : neighbourValue;
-                            neighbourValue = thinningArray[x + 3, y] != 0 ? neighbourValue + 4 : neighbourValue;
-
-                            neighbourValue = thinningArray[x - 3, y + 1] != 0 ? neighbourValue + 32 : neighbourValue;
-                            neighbourValue = thinningArray[x, y + 1] != 0 ? neighbourValue + 16 : neighbourValue;
-                            neighbourValue = thinningArray[x + 3, y + 1] != 0 ? neighbourValue + 8 : neighbourValue;
-
-                            if (K3M_Arrays[0].Contains(neighbourValue))
-                            {
-                                thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 2;
-                            }
-                        }
-                    }
-                }
 
                 for (int x = 3; x < thinningArray.GetLength(0) - 4; x += 3)
                 {
@@ -609,6 +577,7 @@ namespace BiometriaZad3
                             else
                             {
                                 thinningArray[x, y] = thinningArray[x + 1, y] = thinningArray[x + 2, y] = 1;
+                                anyPixelChanged = true;
                             }
                         }
                     }
